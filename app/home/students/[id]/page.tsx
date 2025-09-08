@@ -9,6 +9,7 @@ export default function StudentIdPage() {
     return (
         <div>
             <h1>Student ID: {id}</h1>
+
         </div>
     );
 }
