@@ -6,8 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 const RegisterStudent = () => {
     return (
         <div>
-            <h1 className="uppercase">Register New Student</h1>
-            <div>
+            <h1 className="uppercase text-2xl font-bold mb-8 ">Register New Student</h1>
+            <div className="flex flex-col gap-5 w-[60vw]">
                 <Input type="text" placeholder="Name" />
                 <Input type="text" placeholder="Age" />
                 <Input type="text" placeholder="Phone Number" />
@@ -25,7 +25,7 @@ const RegisterStudent = () => {
 
                 <Calendar />
 
-                <Button>Create</Button>
+                <Button className="w-[15vw]">Create</Button>
             </div>
         </div>
     )
