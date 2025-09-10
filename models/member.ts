@@ -41,7 +41,6 @@ const memberSchema = new mongoose.Schema({
   },
   paymentAmount: {
     type: Number,
-    required: true
   }
 }, { timestamps: true });
 

@@ -2,14 +2,24 @@ import { connectDb } from "@/db";
 import Member from "@/models/member";
 import { NextResponse, NextRequest } from "next/server";
 
-export async function POST(req: NextRequest) {
+export async function POST(req:NextRequest) {
   try {
     await connectDb();
-    const data = await req.json();
-    const member = new Member(data);
+    
+    const { name, age, phoneNumber, membershipType, subscriptionStartDate } = await req.json();
+    
+    const member = new Member({
+      name,
+      age,
+      phoneNumber,
+      membershipType,
+      subscriptionStartDate,
+    });
+    console.log(phoneNumber)
     await member.save();
+    
     return NextResponse.json(member, { status: 201 });
-  } catch (error: any) {
+  } catch (error) {
     return NextResponse.json({ error: error.message }, { status: 400 });
   }
 }
