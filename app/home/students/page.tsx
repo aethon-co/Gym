@@ -1,6 +1,7 @@
 "use client"
 
 import StudentCard from "@/app/(components)/studentCard"
+import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Search } from "lucide-react"
 import { useState } from "react"
@@ -11,8 +12,12 @@ const Students = () => {
     return (
         <div>
             Students
-
-            <Input className="rounded-full w-[60%]" type="text" value={search} placeholder="Search" onChange={(e) => setSearch(e.target.value)} />
+            <div className="flex">
+                <Input className="rounded-l-full w-[60%]" type="text" value={search} placeholder="Search" onChange={(e) => setSearch(e.target.value)} />
+                <Button className="rounded-r-full bg-gray-200">
+                    <Search className="text-black" />
+                </Button>
+            </div>
             <br />
             <div className='flex max-w-[85vw] flex-wrap gap-10'>
                 <StudentCard key={"1"} id={"1"} name="S1" membershipType='Basic' status='Active' subscriptionEndDate={20} />
