@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Users, 
-  ClipboardCheck, 
-  UserPlus, 
+import {
+  Users,
+  ClipboardCheck,
+  UserPlus,
   Dumbbell,
   Calendar,
   TrendingUp,
@@ -82,7 +82,7 @@ const Sidebar = () => {
               {mainNavItems.map((item) => {
                 const IconComponent = item.icon;
                 return (
-                  <Link key={item.href} href={item.href} className="block">
+                  <Link key={item.href} href={`/home/${item.href}`} className="block">
                     <Button
                       variant="ghost"
                       className={cn(
@@ -94,8 +94,8 @@ const Sidebar = () => {
                         <IconComponent className={cn("h-4 w-4 transition-colors", item.color)} />
                         <span className="flex-1 text-left">{item.label}</span>
                         {item.badge && (
-                          <Badge 
-                            variant={item.badge === 'Live' ? 'default' : 'secondary'} 
+                          <Badge
+                            variant={item.badge === 'Live' ? 'default' : 'secondary'}
                             className={cn(
                               "h-5 px-1.5 text-xs font-medium",
                               item.badge === 'Live' && "bg-green-100 text-green-800 animate-pulse"
@@ -123,7 +123,7 @@ const Sidebar = () => {
               {secondaryNavItems.map((item) => {
                 const IconComponent = item.icon;
                 return (
-                  <Link key={item.href} href={item.href} className="block">
+                  <Link key={item.href} href={`/${item.href}`} className="block">
                     <Button
                       variant="ghost"
                       className="w-full hover:cursor-pointer justify-start h-10 px-3 font-medium hover:bg-accent/50 transition-all group"
