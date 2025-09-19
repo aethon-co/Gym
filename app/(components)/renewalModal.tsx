@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { CreditCard, Calendar, DollarSign, Crown, User, Loader2, CheckCircle } from 'lucide-react';
 import { toast } from 'sonner';
 
+
 interface StudentData {
     _id: string;
     name: string;
@@ -185,9 +186,7 @@ export default function RenewalModal({ student, onRenewalSuccess }: RenewalModal
                             </SelectContent>
                         </Select>
                         
-                        <div className="text-xs text-gray-600 bg-gray-50 p-2 rounded">
-                            <strong>Features:</strong> {membershipFeatures[formData.membershipType]?.join(', ')}
-                        </div>
+                   
                     </div>
 
                     <div className="space-y-3">
@@ -220,20 +219,17 @@ export default function RenewalModal({ student, onRenewalSuccess }: RenewalModal
                     <div className="space-y-3">
                         <Label htmlFor="amount">Payment Amount (₹)</Label>
                         <div className="relative">
-                            <DollarSign className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                             <Input
                                 id="amount"
                                 type="number"
                                 value={formData.paymentAmount}
                                 onChange={(e) => handleCustomAmountChange(e.target.value)}
-                                className="pl-10"
+                                className="pl-2"
                                 placeholder="Enter amount"
                                 min="0"
                             />
                         </div>
-                        <div className="text-xs text-gray-500">
-                            Suggested: ₹{membershipPrices[formData.membershipType] * formData.renewalMonths}
-                        </div>
+
                     </div>
 
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
