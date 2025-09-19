@@ -5,23 +5,24 @@ import { Button } from '@/components/ui/button';
 import { useParams, useRouter } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import { ArrowLeft, Edit, CreditCard, Phone, Mail, Calendar, User, Crown, Clock, AlertCircle, CheckCircle } from 'lucide-react';
+import EditModal from '@/app/(components)/editModal';
 
 interface StudentData {
-  _id: string;
-  name: string;
-  phone?: string;
-  email?: string;
-  membershipType: 'Basic' | 'Premium' | 'Student';
-  status: 'Active' | 'Expired' | 'Suspended';
-  subscriptionEndDate: string | number;
-  subscriptionStartDate?: string | number;
+    _id: string;
+    name: string;
+    phone?: string;
+    email?: string;
+    membershipType: 'Basic' | 'Premium' | 'Student';
+    status: 'Active' | 'Expired' | 'Suspended';
+    subscriptionEndDate: string | number;
+    subscriptionStartDate?: string | number;
 }
 
 export default function StudentIdPage() {
     const params = useParams();
     const router = useRouter();
     const { id } = params;
-    
+
     const [student, setStudent] = useState<StudentData | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -129,15 +130,15 @@ export default function StudentIdPage() {
             <div className="max-w-6xl mx-auto">
                 {/* Header */}
                 <div className="mb-8">
-                    <Button 
-                        variant="ghost" 
+                    <Button
+                        variant="ghost"
                         onClick={() => router.back()}
                         className="mb-4 text-gray-600 hover:text-gray-800"
                     >
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back to Members
                     </Button>
-                    
+
                     <div className="bg-white rounded-lg shadow-sm border p-8">
                         <div className="flex items-start justify-between">
                             <div className="flex-1">
@@ -145,7 +146,7 @@ export default function StudentIdPage() {
                                     <User className="h-8 w-8 text-blue-600" />
                                     <h1 className="text-3xl font-bold text-gray-800">{student.name}</h1>
                                 </div>
-                                
+
                                 <div className="flex flex-wrap gap-4 text-gray-600 mb-4">
                                     {student.phone && (
                                         <div className="flex items-center gap-2">
@@ -225,7 +226,7 @@ export default function StudentIdPage() {
                                     {student.status === 'Expired' ? 'Membership Expired' : 'Membership Expiring Soon'}
                                 </h4>
                                 <p className="text-yellow-700 text-sm">
-                                    {student.status === 'Expired' 
+                                    {student.status === 'Expired'
                                         ? 'This member\'s subscription has expired. Consider renewing their membership.'
                                         : `This member's subscription expires in ${daysRemaining} days.`
                                     }
@@ -239,18 +240,8 @@ export default function StudentIdPage() {
                 <div className="bg-white rounded-lg shadow-sm border p-6">
                     <h3 className="text-lg font-semibold text-gray-800 mb-4">Actions</h3>
                     <div className="flex flex-wrap gap-4">
-                        <Button 
-                            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                            onClick={() => {
-                                // Handle edit functionality
-                                console.log('Edit student:', student._id);
-                            }}
-                        >
-                            <Edit className="h-4 w-4" />
-                            Edit Details
-                        </Button>
-
-                        <Button 
+                        <EditModal student={student} />
+                        <Button
                             className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
                             onClick={() => {
                                 // Handle payment/renewal functionality
@@ -262,7 +253,7 @@ export default function StudentIdPage() {
                         </Button>
 
                         {student.status === 'Suspended' && (
-                            <Button 
+                            <Button
                                 variant="outline"
                                 className="flex items-center gap-2 border-green-200 text-green-700 hover:bg-green-50"
                                 onClick={() => {
@@ -276,7 +267,7 @@ export default function StudentIdPage() {
                         )}
 
                         {student.status === 'Active' && (
-                            <Button 
+                            <Button
                                 variant="outline"
                                 className="flex items-center gap-2 border-red-200 text-red-700 hover:bg-red-50"
                                 onClick={() => {
