@@ -9,7 +9,7 @@ export const GET = async (
   try {
     await connectDb();
 
-    if (!params.id || params.id.length !== 24) {
+    if (!params.id) {
       return NextResponse.json(
         { error: "Invalid member ID format" },
         { status: 400 }

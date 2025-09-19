@@ -1,12 +1,12 @@
 import Link from "next/link"
 import StatusDot from "./statusDot"
 
-const StudentCard = ({ name, membershipType, status, subscriptionEndDate, id }: { 
-  id: string, 
-  name: string, 
-  membershipType: string, 
-  status: 'Active' | 'Expired' | 'Suspended', 
-  subscriptionEndDate: Number 
+const StudentCard = ({ name, membershipType, status, subscriptionEndDate, id }: {
+  id: string,
+  name: string,
+  membershipType: string,
+  status: 'Active' | 'Expired' | 'Suspended',
+  subscriptionEndDate: string
 }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -30,14 +30,14 @@ const StudentCard = ({ name, membershipType, status, subscriptionEndDate, id }: 
     const end = new Date(endDate).getTime()
     const now = Date.now()
     const diff = end - now
-    return Math.max(Math.ceil(diff / (1000 * 60 * 60 * 24)), 0)
+    return Math.ceil(diff / (1000 * 60 * 60 * 24))
   }
 
   const daysRemaining = calculateDaysRemaining(subscriptionEndDate)
 
   return (
     <Link href={`./students/${id}`}>
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 p-6 h-full">
+      <div className="bg-white min-w-[22vw] rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 p-6 h-full">
         <div className="flex flex-col h-full justify-between">
           <div className="space-y-4">
             <div className="flex items-start justify-between">
@@ -49,11 +49,10 @@ const StudentCard = ({ name, membershipType, status, subscriptionEndDate, id }: 
               </div>
             </div>
 
-            <div className="space-y-3">
+            <div className="space-y-3 space-x-5">
               <div className={`inline-flex px-3 py-1 rounded-full text-xs font-medium border ${getMembershipColor(membershipType)}`}>
                 {membershipType}
               </div>
-              
               <div className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(status)}`}>
                 {status}
               </div>
@@ -61,12 +60,20 @@ const StudentCard = ({ name, membershipType, status, subscriptionEndDate, id }: 
           </div>
 
           <div className="mt-4 pt-4 border-t border-gray-100">
-            <p className="text-sm text-gray-600">
-              <span className="font-medium">Ends in:</span>{' '}
-              <span className="text-gray-900 font-semibold">
-                {daysRemaining} days
-              </span>
-            </p>
+            {daysRemaining >= 0 ?
+              <p className="text-sm text-gray-600">
+                <span className="font-medium">Ends in:</span>{' '}
+                <span className="text-gray-900 font-semibold">
+                  {daysRemaining} days
+                </span>
+              </p> :
+              <p className="text-sm text-gray-600">
+                <span className="font-medium">Ended</span>{' '}
+                <span className="text-gray-900 font-semibold">
+                  {daysRemaining} days ago
+                </span>
+              </p>
+            }
           </div>
         </div>
       </div>

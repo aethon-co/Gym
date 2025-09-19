@@ -20,7 +20,7 @@ const RegisterMember = () => {
     plan: ''
   })
 
-  const handleInputChange = (field, value) => {
+  const handleInputChange = (field: any, value: any) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -46,7 +46,7 @@ const RegisterMember = () => {
     }
 
     setIsLoading(true)
-    
+
     const loadingToastId = toast.loading('Registering Member...', {
       style: {
         border: '2px solid #000',
@@ -140,7 +140,7 @@ const RegisterMember = () => {
               Complete all fields below to register a new Member
             </CardDescription>
           </CardHeader>
-          
+
           <CardContent className="p-8">
             <div className="grid lg:grid-cols-2 gap-8">
               <div className="space-y-6">
@@ -148,10 +148,10 @@ const RegisterMember = () => {
                   <Label htmlFor="name" className="text-sm font-semibold text-black">
                     Full Name
                   </Label>
-                  <Input 
+                  <Input
                     id="name"
-                    type="text" 
-                    placeholder="Enter Member's full name" 
+                    type="text"
+                    placeholder="Enter Member's full name"
                     value={formData.name}
                     onChange={(e) => handleInputChange('name', e.target.value)}
                     className="h-12 border-2 border-gray-300 focus:border-black focus:ring-black text-black placeholder:text-gray-400"
@@ -162,10 +162,10 @@ const RegisterMember = () => {
                   <Label htmlFor="age" className="text-sm font-semibold text-black">
                     Age
                   </Label>
-                  <Input 
+                  <Input
                     id="age"
-                    type="number" 
-                    placeholder="Enter age" 
+                    type="number"
+                    placeholder="Enter age"
                     value={formData.age}
                     onChange={(e) => handleInputChange('age', e.target.value)}
                     className="h-12 border-2 border-gray-300 focus:border-black focus:ring-black text-black placeholder:text-gray-400"
@@ -179,10 +179,10 @@ const RegisterMember = () => {
                     <Phone className="w-4 h-4" />
                     Phone Number
                   </Label>
-                  <Input 
+                  <Input
                     id="phone"
-                    type="tel" 
-                    placeholder="Enter phone number" 
+                    type="tel"
+                    placeholder="Enter phone number"
                     value={formData.phone}
                     onChange={(e) => handleInputChange('phone', e.target.value)}
                     className="h-12 border-2 border-gray-300 focus:border-black focus:ring-black text-black placeholder:text-gray-400"
@@ -229,7 +229,7 @@ const RegisterMember = () => {
                   <CalendarDays className="w-5 h-5 text-black" />
                   <h3 className="text-lg font-semibold text-black">Enrollment Date</h3>
                 </div>
-                
+
                 <div className="flex justify-center">
                   <Calendar
                     mode="single"
@@ -247,7 +247,7 @@ const RegisterMember = () => {
                     }}
                   />
                 </div>
-                
+
                 {selectedDate && (
                   <div className="mt-4 p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
                     <p className="text-black font-medium">
@@ -259,8 +259,8 @@ const RegisterMember = () => {
             </div>
 
             <div className="mt-12 flex justify-center gap-6">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 size="lg"
                 onClick={handleCancel}
                 disabled={isLoading}
@@ -268,15 +268,14 @@ const RegisterMember = () => {
               >
                 Cancel
               </Button>
-              <Button 
+              <Button
                 size="lg"
                 onClick={handleSubmit}
                 disabled={!isFormValid || isLoading}
-                className={`px-10 h-14 font-semibold transition-all duration-200 ${
-                  isFormValid && !isLoading
-                    ? 'bg-black text-white hover:bg-gray-800 shadow-lg hover:shadow-xl border-2 border-black' 
+                className={`px-10 h-14 font-semibold transition-all duration-200 ${isFormValid && !isLoading
+                    ? 'bg-black text-white hover:bg-gray-800 shadow-lg hover:shadow-xl border-2 border-black'
                     : 'bg-gray-400 text-gray-600 cursor-not-allowed border-2 border-gray-400'
-                }`}
+                  }`}
               >
                 <UserPlus className="w-5 h-5 mr-2" />
                 {isLoading ? 'Registering...' : 'Register Member'}
