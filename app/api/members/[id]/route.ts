@@ -2,20 +2,19 @@ import { connectDb } from "@/db";
 import Member from "@/models/member";
 import { NextRequest, NextResponse } from "next/server";
 
-// PATCH /api/members/:id
 export const PATCH = async (
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) => {
   try {
     await connectDb();
-
+    const { id } = await context.params;
     const body = await req.json();
 
     const updatedMember = await Member.findByIdAndUpdate(
-      params.id,
-      { $set: body },  // apply only passed fields
-      { new: true }    // return updated doc
+      id,
+      { $set: body },
+      { new: true }
     );
 
     if (!updatedMember) {

@@ -4,19 +4,19 @@ import Member from "@/models/member";
 
 export const GET = async (
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) => {
   try {
     await connectDb();
-
-    if (!params.id) {
+    const { id } = await context.params;
+    if (!id) {
       return NextResponse.json(
         { error: "Invalid member ID format" },
         { status: 400 }
       );
     }
 
-    const member = await Member.findById(params.id);
+    const member = await Member.findById(id);
 
     if (!member) {
       return NextResponse.json(
@@ -69,12 +69,12 @@ export const GET = async (
 
 export const DELETE = async (
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) => {
   try {
     await connectDb();
-
-    const deletedMember = await Member.findByIdAndDelete(params.id);
+    const { id } = await context.params;
+    const deletedMember = await Member.findByIdAndDelete(id);
 
     if (!deletedMember) {
       return NextResponse.json(
@@ -98,11 +98,11 @@ export const DELETE = async (
 
 export const PUT = async (
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) => {
   try {
     await connectDb();
-
+    const { id } = await context.params;
     const body = await req.json();
         const allowedUpdates = [
       'name', 
@@ -126,7 +126,7 @@ export const PUT = async (
     }
 
     const updatedMember = await Member.findByIdAndUpdate(
-      params.id,
+      id,
       body,
       { new: true, runValidators: true }
     );
