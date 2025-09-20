@@ -47,12 +47,12 @@ const Students = () => {
 
     const filteredStudents = data?.filter((student: StudentData) => {
         const matchesSearch = student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            student._id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                            student.email?.toLowerCase().includes(searchTerm.toLowerCase())
-        
+            student._id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            student.email?.toLowerCase().includes(searchTerm.toLowerCase())
+
         const matchesStatus = statusFilter === 'All' || student.status === statusFilter
         const matchesMembership = membershipFilter === 'All' || student.membershipType === membershipFilter
-        
+
         return matchesSearch && matchesStatus && matchesMembership
     }) || []
 
@@ -104,12 +104,12 @@ const Students = () => {
                 <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
                     <div className="relative flex-1 min-w-[300px]">
                         <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-                        <Input 
-                            className="pl-12 pr-4 py-3 rounded-full border-2 border-gray-200 focus:border-blue-500 transition-colors w-full" 
-                            type="text" 
-                            value={searchTerm} 
-                            placeholder="Search by name, ID, or email..." 
-                            onChange={(e) => setSearchTerm(e.target.value)} 
+                        <Input
+                            className="pl-12 pr-4 py-3 rounded-full border-2 border-gray-200 focus:border-blue-500 transition-colors w-full"
+                            type="text"
+                            value={searchTerm}
+                            placeholder="Search by name, ID, or email..."
+                            onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
 
@@ -118,7 +118,7 @@ const Students = () => {
                             <Filter className="h-4 w-4 text-gray-500" />
                             <span className="text-sm font-medium text-gray-700">Filters:</span>
                         </div>
-                        
+
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
@@ -142,7 +142,7 @@ const Students = () => {
                             <option value="Couple">Couple</option>
                         </select>
 
-                        <Button 
+                        <Button
                             onClick={handleRefresh}
                             disabled={refreshing || isLoading}
                             variant="outline"
@@ -181,7 +181,7 @@ const Students = () => {
                         {data?.length === 0 ? 'No members found' : 'No members match your criteria'}
                     </h3>
                     <p className="text-gray-500">
-                        {data?.length === 0 
+                        {data?.length === 0
                             ? 'Start by adding new members to your gym'
                             : 'Try adjusting your search or filter criteria'
                         }
@@ -189,14 +189,14 @@ const Students = () => {
                 </div>
             ) : (
                 <div className='flex max-w-[85vw] flex-wrap gap-6'>
-                    {filteredStudents.map(({ _id, name, membershipType, status, subscriptionEndDate }: StudentData) => 
+                    {filteredStudents.map(({ _id, name, membershipType, status, subscriptionEndDate }: StudentData) =>
                         <StudentCard
                             key={_id}
                             id={_id}
                             name={name}
                             membershipType={membershipType}
                             status={status}
-                            subscriptionEndDate={subscriptionEndDate}
+                            subscriptionEndDate={String(subscriptionEndDate)}
                         />
                     )}
                 </div>

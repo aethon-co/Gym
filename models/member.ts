@@ -29,7 +29,7 @@ const memberSchema = new mongoose.Schema({
   subscriptionEndDate: {
     type: Date,
     required: true,
-    default: function () {
+    default: function (this: any) {
       const startDate = this.subscriptionStartDate || new Date();
       return new Date(startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate());
     }

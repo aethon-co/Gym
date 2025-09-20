@@ -4,14 +4,26 @@ import { Users, CheckCircle, RefreshCw, Download, Calendar, Filter } from 'lucid
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 
+// Type definitions
+interface Member {
+  _id: string
+  name: string
+}
+
+interface AttendanceRecord {
+  _id: string
+  memberId: Member
+  date: Date
+}
+
 const Attendance = () => {
-  const [attendanceData, setAttendanceData] = useState([])
+  const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
   const [selectedDate, setSelectedDate] = useState(new Date().toISOString().slice(0, 10))
   const [searchTerm, setSearchTerm] = useState('')
 
-  const generateMockData = (date) => {
+  const generateMockData = (date: string): AttendanceRecord[] => {
     const names = [
       'John Doe', 'Jane Smith', 'Mike Johnson', 'Sarah Wilson', 'Tom Brown',
       'Alice Green', 'Bob White', 'Charlie Black', 'Diana Prince', 'Evan King',
@@ -36,7 +48,7 @@ const Attendance = () => {
     })
   }
 
-  const fetchAttendance = async (date = selectedDate) => {
+  const fetchAttendance = async (date: string = selectedDate) => {
     setLoading(true)
     setTimeout(() => {
       setAttendanceData(generateMockData(date))
@@ -50,7 +62,7 @@ const Attendance = () => {
     setRefreshing(false)
   }
 
-  const handleDateChange = (newDate) => {
+  const handleDateChange = (newDate: string) => {
     setSelectedDate(newDate)
     fetchAttendance(newDate)
   }
@@ -70,7 +82,7 @@ const Attendance = () => {
       new Date(record.date).toLocaleDateString()
     ])
 
-    let csvContent = "data:text/csv;charset=utf-8," + 
+    let csvContent = "data:text/csv;charset=utf-8," +
       [headers, ...rows].map(e => e.join(",")).join("\n")
 
     const encodedUri = encodeURI(csvContent)
@@ -99,12 +111,12 @@ const Attendance = () => {
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           <div className="relative flex-1 min-w-[300px]">
             <Users className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
-            <Input 
-              className="pl-12 pr-4 py-3 rounded-full border-2 border-gray-200 focus:border-blue-500 transition-colors w-full" 
-              type="text" 
-              value={searchTerm} 
-              placeholder="Search by member name..." 
-              onChange={(e) => setSearchTerm(e.target.value)} 
+            <Input
+              className="pl-12 pr-4 py-3 rounded-full border-2 border-gray-200 focus:border-blue-500 transition-colors w-full"
+              type="text"
+              value={searchTerm}
+              placeholder="Search by member name..."
+              onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
 
@@ -113,7 +125,7 @@ const Attendance = () => {
               <Filter className="h-4 w-4 text-gray-500" />
               <span className="text-sm font-medium text-gray-700">Date:</span>
             </div>
-            
+
             <div className="relative">
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
@@ -124,7 +136,7 @@ const Attendance = () => {
               />
             </div>
 
-            <Button 
+            <Button
               onClick={handleRefresh}
               disabled={refreshing || loading}
               variant="outline"
@@ -135,7 +147,7 @@ const Attendance = () => {
               {refreshing ? 'Refreshing...' : 'Refresh'}
             </Button>
 
-            <Button 
+            <Button
               onClick={saveAsCSV}
               disabled={filteredAttendance.length === 0}
               className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
@@ -150,11 +162,11 @@ const Attendance = () => {
         <div className="mt-4 flex justify-between items-center text-sm text-gray-600">
           <span>Showing {filteredAttendance.length} of {attendanceData.length} members</span>
           <span className="font-medium">
-            {new Date(selectedDate).toLocaleDateString('en-US', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
+            {new Date(selectedDate).toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
             })}
           </span>
         </div>
@@ -174,7 +186,7 @@ const Attendance = () => {
                 {attendanceData.length === 0 ? 'No attendance records' : 'No members found'}
               </h3>
               <p className="text-gray-500">
-                {attendanceData.length === 0 
+                {attendanceData.length === 0
                   ? `No members checked in on ${new Date(selectedDate).toLocaleDateString()}`
                   : 'Try adjusting your search criteria'
                 }
@@ -223,8 +235,8 @@ const Attendance = () => {
                           {record.memberId?._id}
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {new Date(record.date).toLocaleTimeString([], { 
-                            hour: '2-digit', 
+                          {new Date(record.date).toLocaleTimeString([], {
+                            hour: '2-digit',
                             minute: '2-digit',
                             hour12: true
                           })}

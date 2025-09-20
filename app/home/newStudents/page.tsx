@@ -8,19 +8,27 @@ import { Label } from "@/components/ui/label"
 import { UserPlus, Phone, CalendarDays, Package } from "lucide-react"
 import { useState } from "react"
 import toast, { Toaster } from 'react-hot-toast'
+import { DateRange } from "react-day-picker"
+
+interface FormData {
+  name: string
+  age: string
+  phone: string
+  plan: string
+}
 
 const RegisterMember = () => {
-  const [selectedDate, setSelectedDate] = useState(undefined)
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(undefined)
   const [isLoading, setIsLoading] = useState(false)
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     name: '',
     age: '',
     phone: '',
     plan: ''
   })
 
-  const handleInputChange = (field: any, value: any) => {
+  const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
@@ -63,7 +71,7 @@ const RegisterMember = () => {
         age: parseInt(formData.age),
         phoneNumber: formData.phone,
         membershipType: formData.plan,
-        subscriptionStartDate: selectedDate.toISOString()
+        subscriptionStartDate: selectedDate?.toISOString()
       }
 
       const response = await fetch('/api/Register', {
@@ -99,7 +107,8 @@ const RegisterMember = () => {
         throw new Error(result.error || 'Registration failed')
       }
     } catch (error) {
-      toast.error(error.message || 'Failed to register Member. Please try again.', {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to register Member. Please try again.'
+      toast.error(errorMessage, {
         id: loadingToastId,
         style: {
           border: '2px solid #dc2626',
@@ -234,7 +243,7 @@ const RegisterMember = () => {
                   <Calendar
                     mode="single"
                     selected={selectedDate}
-                    onSelect={setSelectedDate}
+                    onSelect={(date) => setSelectedDate(date)}
                     disabled={(date) => date < new Date()}
                     className="rounded-lg border-2 border-gray-300 bg-white"
                     classNames={{
@@ -251,7 +260,7 @@ const RegisterMember = () => {
                 {selectedDate && (
                   <div className="mt-4 p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
                     <p className="text-black font-medium">
-                      <strong>Selected Date:</strong> {selectedDate.toLocaleDateString()}
+                      <strong>Selected Date:</strong> {selectedDate?.toLocaleDateString()}
                     </p>
                   </div>
                 )}
@@ -273,8 +282,8 @@ const RegisterMember = () => {
                 onClick={handleSubmit}
                 disabled={!isFormValid || isLoading}
                 className={`px-10 h-14 font-semibold transition-all duration-200 ${isFormValid && !isLoading
-                    ? 'bg-black text-white hover:bg-gray-800 shadow-lg hover:shadow-xl border-2 border-black'
-                    : 'bg-gray-400 text-gray-600 cursor-not-allowed border-2 border-gray-400'
+                  ? 'bg-black text-white hover:bg-gray-800 shadow-lg hover:shadow-xl border-2 border-black'
+                  : 'bg-gray-400 text-gray-600 cursor-not-allowed border-2 border-gray-400'
                   }`}
               >
                 <UserPlus className="w-5 h-5 mr-2" />

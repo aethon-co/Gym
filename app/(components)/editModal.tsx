@@ -15,7 +15,7 @@ interface EditModalProps {
         name: string;
         phone?: string;
         email?: string;
-        membershipType: "Basic" | "Premium" | "Student";
+        membershipType: "Basic" | "Premium" | "Couple" | "Student";
         status: "Active" | "Expired" | "Suspended";
         subscriptionStartDate?: string | number;
         subscriptionEndDate: string | number;
@@ -98,6 +98,7 @@ const EditModal = ({ student }: EditModalProps) => {
                             >
                                 <option value="Basic">Basic</option>
                                 <option value="Premium">Premium</option>
+                                <option value="Couple">Couple</option>
                                 <option value="Student">Student</option>
                             </select>
                         </div>

@@ -26,7 +26,7 @@ interface StudentData {
   name: string;
   phone?: string;
   email?: string;
-  membershipType: 'Basic' | 'Premium' | 'Student';
+  membershipType: 'Basic' | 'Premium' | 'Couple' | 'Student';
   status: 'Active' | 'Expired' | 'Suspended';
   subscriptionEndDate: string | number;
   subscriptionStartDate?: string | number;
@@ -247,42 +247,42 @@ export default function StudentIdPage() {
         )}
 
         <div className="bg-white rounded-lg shadow-sm border p-6">
-  <h3 className="text-lg font-semibold text-gray-800 mb-4">Actions</h3>
-  <div className="flex flex-wrap gap-4">
-    <EditModal student={student} />
+          <h3 className="text-lg font-semibold text-gray-800 mb-4">Actions</h3>
+          <div className="flex flex-wrap gap-4">
+            <EditModal student={student} />
 
-    <RenewalModal
-      student={student}
-      onRenewalSuccess={(updatedStudent) => setStudent(updatedStudent)}
-    />
+            <RenewalModal
+              student={student}
+              onRenewalSuccess={(updatedStudent) => setStudent(updatedStudent)}
+            />
 
-    {student.status === 'Suspended' && (
-      <Button
-        variant="outline"
-        className="flex items-center gap-2 border-green-200 text-green-700 hover:bg-green-50"
-        onClick={() => {
-          console.log('Reactivate member:', student._id);
-        }}
-      >
-        <CheckCircle className="h-4 w-4" />
-        Reactivate
-      </Button>
-    )}
+            {student.status === 'Suspended' && (
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 border-green-200 text-green-700 hover:bg-green-50"
+                onClick={() => {
+                  console.log('Reactivate member:', student._id);
+                }}
+              >
+                <CheckCircle className="h-4 w-4" />
+                Reactivate
+              </Button>
+            )}
 
-    {student.status === 'Active' && (
-      <Button
-        variant="outline"
-        className="flex items-center gap-2 border-red-200 text-red-700 hover:bg-red-50"
-        onClick={() => {
-          console.log('Suspend member:', student._id);
-        }}
-      >
-        <AlertCircle className="h-4 w-4" />
-        Suspend
-      </Button>
-    )}
-  </div>
-</div>
+            {student.status === 'Active' && (
+              <Button
+                variant="outline"
+                className="flex items-center gap-2 border-red-200 text-red-700 hover:bg-red-50"
+                onClick={() => {
+                  console.log('Suspend member:', student._id);
+                }}
+              >
+                <AlertCircle className="h-4 w-4" />
+                Suspend
+              </Button>
+            )}
+          </div>
+        </div>
 
       </div>
     </div>
