@@ -2,15 +2,15 @@ import { connectDb } from "@/db";
 import Member from "@/models/member";
 import { NextResponse, NextRequest } from "next/server";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
   try {
     await connectDb();
-
+    const { id } = await context.params;
     const { amount } = await req.json();
     if (!amount) {
       return NextResponse.json({ error: "Payment amount is required" }, { status: 400 });
     }
-    const member = await Member.findById(params.id);
+    const member = await Member.findById(id);
     if (!member) {
       return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
