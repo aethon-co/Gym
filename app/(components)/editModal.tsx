@@ -13,7 +13,7 @@ interface EditModalProps {
     student: {
         _id: string;
         name: string;
-        phone?: string;
+        phoneNumber?: string;
         email?: string;
         membershipType: "Basic" | "Premium" | "Couple" | "Student";
         status: "Active" | "Expired" | "Suspended";
@@ -29,12 +29,14 @@ const EditModal = ({ student }: EditModalProps) => {
 
     const mutation = useMutation({
         mutationFn: async (updatedData: typeof formData) => {
+            console.log(updatedData)
             const res = await fetch(`/api/members/${student._id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updatedData),
             });
             if (!res.ok) throw new Error("Failed to update student");
+            console.log(res.json())
             return res.json();
         },
         onSuccess: () => {
@@ -78,8 +80,8 @@ const EditModal = ({ student }: EditModalProps) => {
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="phone">Phone</Label>
-                            <Input id="phone" name="phone" value={formData.phone || ""} onChange={handleChange} />
+                            <Label htmlFor="phoneNumber">Phone</Label>
+                            <Input id="phoneNumber" name="phoneNumber" value={formData.phoneNumber || ""} onChange={handleChange} />
                         </div>
 
                         <div className="grid gap-2">

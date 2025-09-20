@@ -24,7 +24,7 @@ import RenewalModal from '@/app/(components)/renewalModal';
 interface StudentData {
   _id: string;
   name: string;
-  phone?: string;
+  phoneNumber?: string;
   email?: string;
   membershipType: 'Basic' | 'Premium' | 'Couple' | 'Student';
   status: 'Active' | 'Expired' | 'Suspended';
@@ -161,10 +161,10 @@ export default function StudentIdPage() {
                 </div>
 
                 <div className="flex flex-wrap gap-4 text-gray-600 mb-4">
-                  {student.phone && (
+                  {student.phoneNumber && (
                     <div className="flex items-center gap-2">
                       <Phone className="h-4 w-4" />
-                      <span>{student.phone}</span>
+                      <span>{student.phoneNumber}</span>
                     </div>
                   )}
                   {student.email && (

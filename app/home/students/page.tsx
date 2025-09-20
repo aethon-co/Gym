@@ -14,7 +14,7 @@ interface StudentData {
     _id: string;
     name: string;
     age?: number;
-    phone?: string;
+    phoneNumber?: string;
     email?: string;
     membershipType: 'Basic' | 'Premium' | 'Student' | 'Couple';
     status: 'Active' | 'Expired' | 'Suspended';
