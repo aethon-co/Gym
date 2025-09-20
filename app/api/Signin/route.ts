@@ -22,8 +22,12 @@ export const POST = async(request:NextRequest) => {
         if(!isMatch){
             return NextResponse.json({error:"Invalid credentials"},{status:401});
         }
-        const token = jwt.sign({id:user._id},process.env.JWT_SECRET,{expiresIn:"5d"});
-        return NextResponse.json({token},{status:200});
+        const secret = process.env.JWT_SECRET
+        if(secret){
+            const token = jwt.sign({id:user._id},secret,{expiresIn:"5d"});
+            return NextResponse.json({token},{status:200});
+        }
+        return NextResponse.json({error:"JWT error"},{status:500}); 
     }catch(err){
         console.log(err);
         return NextResponse.json({error:"Internal Error"},{status:500});

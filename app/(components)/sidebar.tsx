@@ -15,8 +15,16 @@ import {
   Bell
 } from 'lucide-react';
 
+type NavItemsType = {
+  href: string
+  label: string
+  icon: any
+  badge?: string
+  color: string
+}
+
 const Sidebar = () => {
-  const mainNavItems = [
+  const mainNavItems: NavItemsType[] = [
     {
       href: './students',
       label: 'Members',
@@ -39,7 +47,7 @@ const Sidebar = () => {
     }
   ];
 
-  const secondaryNavItems = [
+  const secondaryNavItems: NavItemsType[] = [
     {
       href: './analytics',
       label: 'Analytics',
@@ -131,7 +139,7 @@ const Sidebar = () => {
                       <div className="flex items-center space-x-3 w-full">
                         <IconComponent className={cn("h-4 w-4", item.color)} />
                         <span className="flex-1 text-left">{item.label}</span>
-                        {item.badge && (
+                        {item?.badge && (
                           <Badge variant="destructive" className="h-4 w-4 p-0 flex items-center justify-center text-xs">
                             {item.badge}
                           </Badge>
