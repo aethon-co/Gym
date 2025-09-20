@@ -2,10 +2,10 @@ import { connectDb } from "@/db";
 import Member from "@/models/member";
 import { NextResponse, NextRequest } from "next/server";
 
-export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
     try {
         await connectDb();
-        
+        const { id } = await context.params; 
         const { amount, membershipType, renewalMonths = 1 } = await req.json();
         
         if (!amount || amount <= 0) {
@@ -20,7 +20,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
             }, { status: 400 });
         }
 
-        const member = await Member.findById(params.id);
+        const member = await Member.findById(id);
         if (!member) {
             return NextResponse.json({ 
                 error: "Member not found" 
