@@ -42,7 +42,6 @@ const Sidebar = () => {
       href: './newStudents',
       label: 'Registration',
       icon: UserPlus,
-      badge: '12',
       color: 'text-purple-600'
     }
   ];
@@ -131,7 +130,7 @@ const Sidebar = () => {
               {secondaryNavItems.map((item) => {
                 const IconComponent = item.icon;
                 return (
-                  <Link key={item.href} href={`/${item.href}`} className="block">
+                  <Link key={item.href} href={`/home/${item.href}`} className="block">
                     <Button
                       variant="ghost"
                       className="w-full hover:cursor-pointer justify-start h-10 px-3 font-medium hover:bg-accent/50 transition-all group"

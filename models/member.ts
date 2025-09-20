@@ -16,6 +16,17 @@ const memberSchema = new mongoose.Schema({
     unique: true,
     trim: true
   },
+  address: {
+    type: String,
+    trim: true
+  },
+  email: {
+    type: String,
+    trim: true,
+    lowercase: true,
+    unique: true,
+    sparse: true
+  },
   membershipType: {
     type: String,
     required: true,

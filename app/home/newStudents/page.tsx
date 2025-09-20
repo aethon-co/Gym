@@ -5,15 +5,16 @@ import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
-import { UserPlus, Phone, CalendarDays, Package } from "lucide-react"
+import { Textarea } from "@/components/ui/textarea"
+import { UserPlus, Phone, CalendarDays, Package, MapPin } from "lucide-react"
 import { useState } from "react"
 import toast, { Toaster } from 'react-hot-toast'
-import { DateRange } from "react-day-picker"
 
 interface FormData {
   name: string
   age: string
   phone: string
+  address: string
   plan: string
 }
 
@@ -25,6 +26,7 @@ const RegisterMember = () => {
     name: '',
     age: '',
     phone: '',
+    address: '',
     plan: ''
   })
 
@@ -70,6 +72,7 @@ const RegisterMember = () => {
         name: formData.name,
         age: parseInt(formData.age),
         phoneNumber: formData.phone,
+        address: formData.address,
         membershipType: formData.plan,
         subscriptionStartDate: selectedDate?.toISOString()
       }
@@ -101,7 +104,7 @@ const RegisterMember = () => {
           duration: 4000
         })
 
-        setFormData({ name: '', age: '', phone: '', plan: '' })
+        setFormData({ name: '', age: '', phone: '', address: '', plan: '' })
         setSelectedDate(undefined)
       } else {
         throw new Error(result.error || 'Registration failed')
@@ -129,11 +132,11 @@ const RegisterMember = () => {
   }
 
   const handleCancel = () => {
-    setFormData({ name: '', age: '', phone: '', plan: '' })
+    setFormData({ name: '', age: '', phone: '', address: '', plan: '' })
     setSelectedDate(undefined)
   }
 
-  const isFormValid = formData.name && formData.age && formData.phone && formData.plan && selectedDate
+  const isFormValid = formData.name && formData.age && formData.phone && formData.address && formData.plan && selectedDate
 
   return (
     <div className="text-black p-6 pt-0">
@@ -199,6 +202,21 @@ const RegisterMember = () => {
                 </div>
 
                 <div className="space-y-2">
+                  <Label htmlFor="address" className="text-sm font-semibold text-black flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    Address
+                  </Label>
+                  <Textarea
+                    id="address"
+                    placeholder="Enter full address"
+                    value={formData.address}
+                    onChange={(e) => handleInputChange('address', e.target.value)}
+                    className="min-h-[96px] border-2 border-gray-300 focus:border-black focus:ring-black text-black placeholder:text-gray-400 resize-none"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="space-y-2">
                   <Label className="text-sm font-semibold text-black flex items-center gap-2">
                     <Package className="w-4 h-4" />
                     Subscription Plan
@@ -244,7 +262,13 @@ const RegisterMember = () => {
                     mode="single"
                     selected={selectedDate}
                     onSelect={(date) => setSelectedDate(date)}
-                    disabled={(date) => date < new Date()}
+                    disabled={(date) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); 
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  return d < today;
+}}
                     className="rounded-lg border-2 border-gray-300 bg-white"
                     classNames={{
                       day_selected: "bg-black text-white hover:bg-gray-800",
@@ -260,7 +284,11 @@ const RegisterMember = () => {
                 {selectedDate && (
                   <div className="mt-4 p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
                     <p className="text-black font-medium">
-                      <strong>Selected Date:</strong> {selectedDate?.toLocaleDateString()}
+<strong>Selected Date:</strong> {selectedDate?.toLocaleDateString('en-GB', {
+  day: '2-digit',
+  month: '2-digit',
+  year: '2-digit'
+})}
                     </p>
                   </div>
                 )}

@@ -6,12 +6,13 @@ export async function POST(req:NextRequest) {
   try {
     await connectDb();
     
-    const { name, age, phoneNumber, membershipType, subscriptionStartDate } = await req.json();
+    const { name, age, phoneNumber,address, membershipType, subscriptionStartDate } = await req.json();
     
     const member = new Member({
       name,
       age,
       phoneNumber,
+      address,
       membershipType,
       subscriptionStartDate,
     });
