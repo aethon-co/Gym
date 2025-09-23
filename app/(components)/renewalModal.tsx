@@ -15,6 +15,7 @@ interface StudentData {
     name: string;
     phone?: string;
     email?: string;
+    address?: string;
     membershipType: 'Basic' | 'Premium' | 'Couple' | 'Student';
     status: 'Active' | 'Expired' | 'Suspended';
     subscriptionEndDate: string | number;
@@ -72,6 +73,8 @@ export default function RenewalModal({ student, onRenewalSuccess }: RenewalModal
             paymentAmount: numAmount
         }));
     };
+
+
 
     const calculateNewEndDate = () => {
         const currentEndDate = new Date(student.subscriptionEndDate);
@@ -231,6 +234,8 @@ export default function RenewalModal({ student, onRenewalSuccess }: RenewalModal
                         </div>
 
                     </div>
+
+                    
 
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <div className="flex items-center gap-2 text-blue-700">

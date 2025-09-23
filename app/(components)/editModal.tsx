@@ -1,10 +1,10 @@
-// EditModal.tsx
 "use client"
 
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Edit } from "lucide-react"
 import { useState } from "react"
 import { useMutation, useQueryClient } from "@tanstack/react-query"
@@ -15,6 +15,7 @@ interface EditModalProps {
         name: string;
         phoneNumber?: string;
         email?: string;
+        address?: string;
         membershipType: "Basic" | "Premium" | "Couple" | "Student";
         status: "Active" | "Expired" | "Suspended";
         subscriptionStartDate?: string | number;
@@ -23,38 +24,35 @@ interface EditModalProps {
 }
 
 const EditModal = ({ student }: EditModalProps) => {
-    const queryClient = useQueryClient();
-
-    const [formData, setFormData] = useState({ ...student });
+    const queryClient = useQueryClient()
+    const [formData, setFormData] = useState({ ...student })
 
     const mutation = useMutation({
         mutationFn: async (updatedData: typeof formData) => {
-            console.log(updatedData)
             const res = await fetch(`/api/members/${student._id}`, {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(updatedData),
-            });
-            if (!res.ok) throw new Error("Failed to update student");
-            console.log(res.json())
-            return res.json();
+            })
+            if (!res.ok) throw new Error("Failed to update student")
+            return res.json()
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ["student", student._id] }); // refetch
+            queryClient.invalidateQueries({ queryKey: ["student", student._id] })
         },
-    });
+    })
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setFormData(prev => ({
             ...prev,
             [e.target.name]: e.target.value,
-        }));
-    };
+        }))
+    }
 
     const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        mutation.mutate(formData);
-    };
+        e.preventDefault()
+        mutation.mutate(formData)
+    }
 
     return (
         <Dialog>
@@ -90,34 +88,45 @@ const EditModal = ({ student }: EditModalProps) => {
                         </div>
 
                         <div className="grid gap-2">
-                            <Label htmlFor="membershipType">Membership Type</Label>
-                            <select
-                                id="membershipType"
-                                name="membershipType"
-                                value={formData.membershipType}
-                                onChange={handleChange}
-                                className="border rounded p-2"
-                            >
-                                <option value="Basic">Basic</option>
-                                <option value="Premium">Premium</option>
-                                <option value="Couple">Couple</option>
-                                <option value="Student">Student</option>
-                            </select>
+                            <Label htmlFor="address">Address</Label>
+                            <Input id="address" name="address" value={formData.address || ""} onChange={handleChange} />
                         </div>
 
-                        <div className="grid gap-2">
-                            <Label htmlFor="status">Status</Label>
-                            <select
-                                id="status"
-                                name="status"
-                                value={formData.status}
-                                onChange={handleChange}
-                                className="border rounded p-2"
-                            >
-                                <option value="Active">Active</option>
-                                <option value="Expired">Expired</option>
-                                <option value="Suspended">Suspended</option>
-                            </select>
+                        <div className="flex gap-4">
+                            <div className="flex-1 grid gap-2">
+                                <Label htmlFor="membershipType">Membership Type</Label>
+                                <Select
+                                    value={formData.membershipType}
+                                    onValueChange={(value) => setFormData(prev => ({ ...prev, membershipType: value as typeof formData.membershipType }))}
+                                >
+                                    <SelectTrigger className="border rounded p-2">
+                                        <SelectValue placeholder="Select membership type" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Basic">Basic</SelectItem>
+                                        <SelectItem value="Premium">Premium</SelectItem>
+                                        <SelectItem value="Couple">Couple</SelectItem>
+                                        <SelectItem value="Student">Student</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="flex-1 grid gap-2">
+                                <Label htmlFor="status">Status</Label>
+                                <Select
+                                    value={formData.status}
+                                    onValueChange={(value) => setFormData(prev => ({ ...prev, status: value as typeof formData.status }))}
+                                >
+                                    <SelectTrigger className="border rounded p-2">
+                                        <SelectValue placeholder="Select status" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="Active">Active</SelectItem>
+                                        <SelectItem value="Expired">Expired</SelectItem>
+                                        <SelectItem value="Suspended">Suspended</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
                         </div>
 
                         <div className="grid gap-2">
@@ -162,7 +171,7 @@ const EditModal = ({ student }: EditModalProps) => {
                 </form>
             </DialogContent>
         </Dialog>
-    );
-};
+    )
+}
 
-export default EditModal;
+export default EditModal

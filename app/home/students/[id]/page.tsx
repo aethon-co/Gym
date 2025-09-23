@@ -15,7 +15,8 @@ import {
   Crown,
   Clock,
   AlertCircle,
-  CheckCircle
+  CheckCircle,
+  MapPin
 } from 'lucide-react';
 import EditModal from '@/app/(components)/editModal';
 import RenewalModal from '@/app/(components)/renewalModal';
@@ -26,6 +27,7 @@ interface StudentData {
   name: string;
   phoneNumber?: string;
   email?: string;
+  address?: string;
   membershipType: 'Basic' | 'Premium' | 'Couple' | 'Student';
   status: 'Active' | 'Expired' | 'Suspended';
   subscriptionEndDate: string | number;
@@ -73,6 +75,25 @@ export default function StudentIdPage() {
       });
     } catch {
       return 'N/A';
+    }
+  };
+
+  const reactivateMember = async (memberId: string) => {
+    try {
+      const response = await fetch('/api/members/reactivate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to reactivate member');
+      }
+      const data = await response.json();
+      if (student) {
+        setStudent({ ...student, status: 'Active' });
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'An error occurred while reactivating the member');
     }
   };
 
@@ -193,6 +214,12 @@ export default function StudentIdPage() {
                     </div>
                   )}
                 </div>
+                {student.address && (
+                  <div className="flex items-center gap-2 text-gray-600 mb-4">
+                    <MapPin className="h-4 w-4" />
+                    <span>{student.address}</span>
+                  </div>
+                )}
 
                 <div className="text-sm text-gray-500">
                   Member ID: {student._id}
@@ -280,7 +307,7 @@ export default function StudentIdPage() {
                 variant="outline"
                 className="flex items-center gap-2 border-green-200 text-green-700 hover:bg-green-50"
                 onClick={() => {
-                  console.log('Reactivate member:', student._id);
+                  reactivateMember(student._id);
                 }}
               >
                 <CheckCircle className="h-4 w-4" />

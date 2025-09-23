@@ -37,6 +37,7 @@ export const GET = async (
       age: member.age,
       phoneNumber: member.phoneNumber, 
       email: member.email || null, 
+      address: member.address || null,
       membershipType: member.membershipType,
       status: member.status,
       subscriptionStartDate: member.subscriptionStartDate.toISOString(),
