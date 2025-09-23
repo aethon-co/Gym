@@ -76,6 +76,25 @@ export default function StudentIdPage() {
     }
   };
 
+  const suspendMember = async (memberId: string) => {
+    try {
+      const response = await fetch('/api/members/suspend', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ memberId })
+      });
+      if (!response.ok) {
+        throw new Error('Failed to suspend member');
+      }
+      const data = await response.json();
+      if (student) {
+        setStudent({ ...student, status: 'Suspended' });
+      }
+    } catch (err) {
+      alert(err instanceof Error ? err.message : 'An error occurred while suspending the member');
+    }
+  };
+
   const getDaysRemaining = (endDate: string | number) => {
     try {
       const end = typeof endDate === 'string' ? new Date(endDate) : new Date(endDate);
@@ -274,7 +293,7 @@ export default function StudentIdPage() {
                 variant="outline"
                 className="flex items-center gap-2 border-red-200 text-red-700 hover:bg-red-50"
                 onClick={() => {
-                  console.log('Suspend member:', student._id);
+                  suspendMember(student._id);
                 }}
               >
                 <AlertCircle className="h-4 w-4" />

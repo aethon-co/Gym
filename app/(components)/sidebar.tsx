@@ -1,3 +1,4 @@
+"use client"
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,7 @@ import {
   Settings,
   Bell
 } from 'lucide-react';
+import { useEffect, useState } from 'react';
 
 type NavItemsType = {
   href: string
@@ -24,12 +26,26 @@ type NavItemsType = {
 }
 
 const Sidebar = () => {
+   const [count, setCount] = useState<number | null>(null);
+  useEffect(() => {
+    const fetchMemberCount = async()=>{
+      try{
+        const response = await fetch('/api/members/count');
+        const data = await response.json();
+        setCount(data.count);
+      }catch(err){
+        console.error("Fetch count error:", err);
+      }
+    }
+    fetchMemberCount();
+  }, []);
+
   const mainNavItems: NavItemsType[] = [
     {
       href: './students',
       label: 'Members',
       icon: Users,
-      badge: '247',
+       badge: count !== null ? count.toString() : '...',
       color: 'text-blue-600'
     },
     {
@@ -60,6 +76,8 @@ const Sidebar = () => {
       color: 'text-gray-600'
     }
   ];
+
+ 
 
   return (
     <div className="flex h-full w-72 flex-col border-r bg-background">
