@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { UserPlus, Phone, CalendarDays, Package, MapPin } from "lucide-react"
+import { UserPlus, Phone, CalendarDays, Package, MapPin, User, Hash } from "lucide-react"
 import { useState } from "react"
 import toast, { Toaster } from 'react-hot-toast'
 
@@ -41,15 +41,12 @@ const RegisterMember = () => {
     if (!isFormValid) {
       toast.error('Please fill in all required fields', {
         style: {
-          border: '2px solid #000',
-          padding: '16px',
-          color: '#000',
-          backgroundColor: '#fff',
-          fontWeight: '600'
-        },
-        iconTheme: {
-          primary: '#000',
-          secondary: '#fff',
+          border: '1px solid #ef4444',
+          padding: '12px 16px',
+          color: '#ef4444',
+          backgroundColor: '#fef2f2',
+          fontWeight: '500',
+          borderRadius: '8px'
         }
       })
       return
@@ -59,11 +56,12 @@ const RegisterMember = () => {
 
     const loadingToastId = toast.loading('Registering Member...', {
       style: {
-        border: '2px solid #000',
-        padding: '16px',
-        color: '#000',
-        backgroundColor: '#fff',
-        fontWeight: '600'
+        border: '1px solid #6b7280',
+        padding: '12px 16px',
+        color: '#374151',
+        backgroundColor: '#f9fafb',
+        fontWeight: '500',
+        borderRadius: '8px'
       }
     })
 
@@ -91,15 +89,12 @@ const RegisterMember = () => {
         toast.success('Member registered successfully!', {
           id: loadingToastId,
           style: {
-            border: '2px solid #000',
-            padding: '16px',
-            color: '#fff',
-            backgroundColor: '#000',
-            fontWeight: '600'
-          },
-          iconTheme: {
-            primary: '#fff',
-            secondary: '#000',
+            border: '1px solid #10b981',
+            padding: '12px 16px',
+            color: '#059669',
+            backgroundColor: '#ecfdf5',
+            fontWeight: '500',
+            borderRadius: '8px'
           },
           duration: 4000
         })
@@ -114,15 +109,12 @@ const RegisterMember = () => {
       toast.error(errorMessage, {
         id: loadingToastId,
         style: {
-          border: '2px solid #dc2626',
-          padding: '16px',
-          color: '#dc2626',
-          backgroundColor: '#fff',
-          fontWeight: '600'
-        },
-        iconTheme: {
-          primary: '#dc2626',
-          secondary: '#fff',
+          border: '1px solid #ef4444',
+          padding: '12px 16px',
+          color: '#ef4444',
+          backgroundColor: '#fef2f2',
+          fontWeight: '500',
+          borderRadius: '8px'
         },
         duration: 5000
       })
@@ -139,193 +131,218 @@ const RegisterMember = () => {
   const isFormValid = formData.name && formData.age && formData.phone && formData.address && formData.plan && selectedDate
 
   return (
-    <div className="text-black p-6 pt-0">
-      <Toaster />
-      <div className="max-w-4xl mx-auto">
-        <Card className="bg-white border-2 border-gray-200 shadow-2xl">
-          <CardHeader className="border-b border-gray-100 pb-6">
-            <CardTitle className="text-2xl flex items-center gap-3 text-black">
-              <UserPlus className="w-6 h-6" />
-              Member Registration
-            </CardTitle>
-            <CardDescription className="text-gray-600 text-base">
-              Complete all fields below to register a new Member
-            </CardDescription>
-          </CardHeader>
+    <div className="h-screen bg-gradient-to-br from-slate-50 to-gray-100 flex flex-col">
+      <Toaster position="top-right" />
+      
+      <div className="flex-shrink-0 text-center pt-4 pb-2">
+        <div className="inline-flex items-center justify-center w-12 h-12 bg-slate-900 rounded-2xl mb-2 shadow-lg">
+          <UserPlus className="w-6 h-6 text-white" />
+        </div>
+        <h1 className="text-2xl font-bold text-slate-900 mb-1">Member Registration</h1>
+        <p className="text-slate-600 text-sm">Complete the form below to register a new member</p>
+      </div>
 
-          <CardContent className="p-8">
-            <div className="grid lg:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm font-semibold text-black">
-                    Full Name
-                  </Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="Enter Member's full name"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange('name', e.target.value)}
-                    className="h-12 border-2 border-gray-300 focus:border-black focus:ring-black text-black placeholder:text-gray-400"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="age" className="text-sm font-semibold text-black">
-                    Age
-                  </Label>
-                  <Input
-                    id="age"
-                    type="number"
-                    placeholder="Enter age"
-                    value={formData.age}
-                    onChange={(e) => handleInputChange('age', e.target.value)}
-                    className="h-12 border-2 border-gray-300 focus:border-black focus:ring-black text-black placeholder:text-gray-400"
-                    min="1"
-                    max="100"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="phone" className="text-sm font-semibold text-black flex items-center gap-2">
-                    <Phone className="w-4 h-4" />
-                    Phone Number
-                  </Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    placeholder="Enter phone number"
-                    value={formData.phone}
-                    onChange={(e) => handleInputChange('phone', e.target.value)}
-                    className="h-12 border-2 border-gray-300 focus:border-black focus:ring-black text-black placeholder:text-gray-400"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="address" className="text-sm font-semibold text-black flex items-center gap-2">
-                    <MapPin className="w-4 h-4" />
-                    Address
-                  </Label>
-                  <Textarea
-                    id="address"
-                    placeholder="Enter full address"
-                    value={formData.address}
-                    onChange={(e) => handleInputChange('address', e.target.value)}
-                    className="min-h-[96px] border-2 border-gray-300 focus:border-black focus:ring-black text-black placeholder:text-gray-400 resize-none"
-                    rows={3}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-semibold text-black flex items-center gap-2">
-                    <Package className="w-4 h-4" />
-                    Subscription Plan
-                  </Label>
-                  <Select value={formData.plan} onValueChange={(value) => handleInputChange('plan', value)}>
-                    <SelectTrigger className="h-12 border-2 border-gray-300 focus:border-black focus:ring-black text-black">
-                      <SelectValue placeholder="Select a subscription plan" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white border-2 border-gray-200">
-                      <SelectItem value="Basic" className="cursor-pointer hover:bg-gray-100">
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-black">Basic Plan</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="Premium" className="cursor-pointer hover:bg-gray-100">
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-black">Premium Plan</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="Couple" className="cursor-pointer hover:bg-gray-100">
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-black">Couple Plan</span>
-                        </div>
-                      </SelectItem>
-                      <SelectItem value="Student" className="cursor-pointer hover:bg-gray-100">
-                        <div className="flex flex-col">
-                          <span className="font-semibold text-black">Student Plan</span>
-                        </div>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-center gap-2 mb-4">
-                  <CalendarDays className="w-5 h-5 text-black" />
-                  <h3 className="text-lg font-semibold text-black">Enrollment Date</h3>
-                </div>
-
-                <div className="flex justify-center">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => setSelectedDate(date)}
-                    disabled={(date) => {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0); 
-  const d = new Date(date);
-  d.setHours(0, 0, 0, 0);
-  return d < today;
-}}
-                    className="rounded-lg border-2 border-gray-300 bg-white"
-                    classNames={{
-                      day_selected: "bg-black text-white hover:bg-gray-800",
-                      day_today: "bg-gray-200 text-black font-bold border border-gray-400",
-                      day: "hover:bg-gray-100 text-black",
-                      nav_button: "text-black hover:bg-gray-100",
-                      caption: "text-black font-semibold",
-                      head_cell: "text-gray-600 font-medium"
-                    }}
-                  />
-                </div>
-
-                {selectedDate && (
-                  <div className="mt-4 p-4 bg-gray-100 rounded-lg border-2 border-gray-300">
-                    <p className="text-black font-medium">
-<strong>Selected Date:</strong> {selectedDate?.toLocaleDateString('en-GB', {
-  day: '2-digit',
-  month: '2-digit',
-  year: '2-digit'
-})}
-                    </p>
+      <div className="flex-1 px-4 pb-4 overflow-hidden">
+        <Card className="h-full bg-white/80 backdrop-blur-sm border-0 shadow-2xl rounded-3xl overflow-hidden">
+          <CardContent className="p-0 h-full flex flex-col">
+            <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 overflow-hidden">
+              
+              <div className="p-4 lg:p-6 bg-white/50 overflow-y-auto">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
+                    <User className="w-4 h-4 text-slate-600" />
                   </div>
-                )}
+                  <h2 className="text-lg font-bold text-slate-900">Personal Information</h2>
+                </div>
+
+                <div className="space-y-4">
+                  <div>
+                    <Label htmlFor="name" className="text-sm font-semibold text-slate-700 mb-2 block">
+                      Full Name
+                    </Label>
+                    <Input
+                      id="name"
+                      type="text"
+                      placeholder="Enter member's full name"
+                      value={formData.name}
+                      onChange={(e) => handleInputChange('name', e.target.value)}
+                      className="h-10 border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-400 text-slate-900 placeholder:text-slate-400 bg-white rounded-lg"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <Label htmlFor="age" className="text-sm font-semibold text-slate-700 mb-2 block">
+                        <Hash className="w-3 h-3 inline mr-1" />
+                        Age
+                      </Label>
+                      <Input
+                        id="age"
+                        type="number"
+                        placeholder="Age"
+                        value={formData.age}
+                        onChange={(e) => handleInputChange('age', e.target.value)}
+                        className="h-10 border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-400 text-slate-900 placeholder:text-slate-400 bg-white rounded-lg"
+                        min="1"
+                        max="100"
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="phone" className="text-sm font-semibold text-slate-700 mb-2 block">
+                        <Phone className="w-3 h-3 inline mr-1" />
+                        Phone
+                      </Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        placeholder="Phone number"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        className="h-10 border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-400 text-slate-900 placeholder:text-slate-400 bg-white rounded-lg"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="address" className="text-sm font-semibold text-slate-700 mb-2 block">
+                      <MapPin className="w-3 h-3 inline mr-1" />
+                      Address
+                    </Label>
+                    <Textarea
+                      id="address"
+                      placeholder="Enter full address"
+                      value={formData.address}
+                      onChange={(e) => handleInputChange('address', e.target.value)}
+                      className="min-h-[80px] border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-400 text-slate-900 placeholder:text-slate-400 resize-none bg-white rounded-lg"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                      <Package className="w-3 h-3" />
+                      Subscription Plan
+                    </Label>
+                    <Select value={formData.plan} onValueChange={(value) => handleInputChange('plan', value)}>
+                      <SelectTrigger className="h-10 border-slate-200 focus:border-slate-400 focus:ring-2 focus:ring-slate-400 text-slate-900 bg-white rounded-lg">
+                        <SelectValue placeholder="Select a subscription plan" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white border-slate-200 rounded-xl">
+                        <SelectItem value="Basic" className="cursor-pointer hover:bg-slate-50 rounded-lg my-1">
+                          <div className="flex flex-col py-1">
+                            <span className="font-semibold text-slate-900">Basic Plan</span>
+                            <span className="text-xs text-slate-500">Essential features</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="Premium" className="cursor-pointer hover:bg-slate-50 rounded-lg my-1">
+                          <div className="flex flex-col py-1">
+                            <span className="font-semibold text-slate-900">Premium Plan</span>
+                            <span className="text-xs text-slate-500">All features included</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="Couple" className="cursor-pointer hover:bg-slate-50 rounded-lg my-1">
+                          <div className="flex flex-col py-1">
+                            <span className="font-semibold text-slate-900">Couple Plan</span>
+                            <span className="text-xs text-slate-500">For two members</span>
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="Student" className="cursor-pointer hover:bg-slate-50 rounded-lg my-1">
+                          <div className="flex flex-col py-1">
+                            <span className="font-semibold text-slate-900">Student Plan</span>
+                            <span className="text-xs text-slate-500">Discounted rate</span>
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              </div>
+
+               <div className="p-4 lg:p-6 bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col overflow-hidden">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-8 h-8 bg-slate-100 rounded-xl flex items-center justify-center">
+                    <CalendarDays className="w-4 h-4 text-slate-600" />
+                  </div>
+                  <h2 className="text-lg font-bold text-slate-900">Enrollment Date</h2>
+                </div>
+
+                <div className="flex-1 flex flex-col items-center justify-center min-h-0">
+                  <div className="mb-4">
+                    <Calendar
+                      mode="single"
+                      selected={selectedDate}
+                      onSelect={(date) => setSelectedDate(date)}
+                      disabled={(date) => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0); 
+                        const d = new Date(date);
+                        d.setHours(0, 0, 0, 0);
+                        return d < today;
+                      }}
+                      className="rounded-xl border-2 border-slate-200 bg-white shadow-lg scale-110 transform"
+                      classNames={{
+                        day_selected: "bg-slate-900 text-white hover:bg-slate-800 rounded-lg",
+                        day_today: "bg-slate-100 text-slate-900 font-bold border-2 border-slate-300 rounded-lg",
+                        day: "hover:bg-slate-50 text-slate-700 rounded-lg transition-all duration-200 hover:scale-105",
+                        nav_button: "text-slate-600 hover:bg-slate-100 rounded-lg",
+                        caption: "text-slate-900 font-bold text-lg",
+                        head_cell: "text-slate-500 font-semibold text-sm"
+                      }}
+                    />
+                  </div>
+
+                  {selectedDate && (
+                    <div className="w-full max-w-xs p-4 bg-white/80 rounded-xl border-2 border-slate-200 shadow-lg backdrop-blur-sm">
+                      <p className="text-slate-900 font-bold text-center text-sm">
+                        <CalendarDays className="w-4 h-4 inline mr-2 text-slate-600" />
+                        {selectedDate?.toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric'
+                        })}
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
-            <div className="mt-12 flex justify-center gap-6">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handleCancel}
-                disabled={isLoading}
-                className="px-10 h-14 text-black border-2 border-gray-300 hover:bg-gray-100 font-semibold"
-              >
-                Cancel
-              </Button>
-              <Button
-                size="lg"
-                onClick={handleSubmit}
-                disabled={!isFormValid || isLoading}
-                className={`px-10 h-14 font-semibold transition-all duration-200 ${isFormValid && !isLoading
-                  ? 'bg-black text-white hover:bg-gray-800 shadow-lg hover:shadow-xl border-2 border-black'
-                  : 'bg-gray-400 text-gray-600 cursor-not-allowed border-2 border-gray-400'
+            <div className="flex-shrink-0 p-4 lg:p-6 bg-white border-t border-slate-200">
+              <div className="flex flex-row justify-center gap-4">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleCancel}
+                  disabled={isLoading}
+                  className="px-6 h-10 text-slate-600 border-2 border-slate-300 hover:bg-slate-50 font-semibold rounded-xl transition-all duration-200 hover:scale-105"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={handleSubmit}
+                  disabled={!isFormValid || isLoading}
+                  className={`px-6 h-10 font-semibold transition-all duration-300 rounded-xl ${
+                    isFormValid && !isLoading
+                      ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-xl hover:shadow-2xl hover:scale-105'
+                      : 'bg-slate-300 text-slate-500 cursor-not-allowed'
                   }`}
-              >
-                <UserPlus className="w-5 h-5 mr-2" />
-                {isLoading ? 'Registering...' : 'Register Member'}
-              </Button>
-            </div>
-
-            {!isFormValid && (
-              <div className="mt-6 text-center">
-                <p className="text-gray-600 font-medium">
-                  Please fill in all fields to register the Member
-                </p>
+                >
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  {isLoading ? 'Registering...' : 'Register Member'}
+                </Button>
               </div>
-            )}
+
+              {!isFormValid && (
+                <div className="mt-3 text-center">
+                  <p className="text-slate-500 text-sm">
+                    Please complete all fields to register the member
+                  </p>
+                </div>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
