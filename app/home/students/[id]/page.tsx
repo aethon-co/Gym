@@ -1,9 +1,7 @@
 "use client";
 
-import StatusDot from '@/app/(components)/statusDot';
-import { Button } from '@/components/ui/button';
-import { useParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
+import { useParams, useRouter } from "next/navigation";
 import {
   ArrowLeft,
   Edit,
@@ -16,21 +14,36 @@ import {
   Clock,
   AlertCircle,
   CheckCircle,
-  MapPin
-} from 'lucide-react';
-import EditModal from '@/app/(components)/editModal';
-import RenewalModal from '@/app/(components)/renewalModal';
+  MapPin,
+  DollarSign,
+  Receipt,
+  CalendarDays,
+  Trash2,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import EditModal from "@/app/(components)/editModal";
+import RenewalModal from "@/app/(components)/renewalModal";
+import StatusDot from "@/app/(components)/statusDot";
+import { StudentData } from "@/lib/types";
 
-interface StudentData {
+interface Payment {
   _id: string;
-  name: string;
-  phoneNumber?: string;
-  email?: string;
-  address?: string;
-  membershipType: 'Basic' | 'Premium' | 'Couple' | 'Student';
-  status: 'Active' | 'Expired' | 'Suspended';
-  subscriptionEndDate: string | number;
-  subscriptionStartDate?: string | number;
+  amount: number;
+  paymentMethod: string;
+  notes: string;
+  createdAt: string;
+  memberId: string;
+  duration?: number;
+}
+
+interface ApiResponse {
+  success: boolean;
+  data?: {
+    member: StudentData;
+    payments: Payment[];
+  };
+  error?: string;
+  details?: string[];
 }
 
 export default function StudentIdPage() {
@@ -39,196 +52,305 @@ export default function StudentIdPage() {
   const { id } = params;
 
   const [student, setStudent] = useState<StudentData | null>(null);
+  const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
-    const fetchStudentData = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(`/api/members/${id}/delete`);
-        if (!response.ok) throw new Error('Failed to fetch student data');
-        const data = await response.json();
-        setStudent(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (id) fetchStudentData();
+    fetchStudentData();
   }, [id]);
+
+  const fetchStudentData = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch(`/api/members/${id}`);
+      const data: ApiResponse = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to fetch student data");
+      }
+
+      if (data.data) {
+        setStudent(data.data.member);
+        setPayments(data.data.payments || []);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (
+      !confirm(
+        "Are you sure you want to delete this member? This action cannot be undone."
+      )
+    ) {
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+      const response = await fetch(`/api/members/${id}`, {
+        method: "DELETE",
+      });
+
+      const data = await response.json();
+
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to delete member");
+      }
+
+      router.push("/home/students");
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Failed to delete member");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   const formatDate = (date: string | number) => {
     try {
-      const dateObj = new Date(date);
-      return dateObj.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const d = new Date(date);
+      return d.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
     } catch {
-      return 'N/A';
+      return "N/A";
     }
   };
 
-  const reactivateMember = async (memberId: string) => {
+  const formatDateTime = (date: string) => {
     try {
-      const response = await fetch('/api/members/reactivate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ memberId })
+      const d = new Date(date);
+      return d.toLocaleString("en-GB", {
+        day: "2-digit",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
       });
-      if (!response.ok) throw new Error('Failed to reactivate member');
-      setStudent(prev => prev ? { ...prev, status: 'Active' } : prev);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error reactivating member');
-    }
-  };
-
-  const suspendMember = async (memberId: string) => {
-    try {
-      const response = await fetch('/api/members/suspend', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ memberId })
-      });
-      if (!response.ok) throw new Error('Failed to suspend member');
-      setStudent(prev => prev ? { ...prev, status: 'Suspended' } : prev);
-    } catch (err) {
-      alert(err instanceof Error ? err.message : 'Error suspending member');
+    } catch {
+      return "N/A";
     }
   };
 
   const getDaysRemaining = (endDate: string | number) => {
-    try {
-      const end = new Date(endDate);
-      const diffTime = end.getTime() - new Date().getTime();
-      return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    } catch {
-      return 0;
-    }
+    const end = new Date(endDate);
+    const diff = end.getTime() - new Date().getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
   };
 
   const getMembershipIcon = (type: string) => {
     switch (type) {
-      case 'Premium': return <Crown className="h-5 w-5 text-yellow-500" />;
-      case 'Student': return <User className="h-5 w-5 text-green-500" />;
-      default: return <User className="h-5 w-5 text-blue-500" />;
+      case "Premium":
+        return <Crown className="h-5 w-5 text-yellow-500" />;
+      case "Student":
+        return <User className="h-5 w-5 text-green-500" />;
+      default:
+        return <User className="h-5 w-5 text-blue-500" />;
     }
   };
 
   const getStatusConfig = (status: string) => {
     switch (status) {
-      case 'Active': return { color: 'text-green-600', bg: 'bg-green-50', border: 'border-green-200', icon: CheckCircle };
-      case 'Expired': return { color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200', icon: AlertCircle };
-      case 'Suspended': return { color: 'text-yellow-600', bg: 'bg-yellow-50', border: 'border-yellow-200', icon: AlertCircle };
-      default: return { color: 'text-gray-600', bg: 'bg-gray-50', border: 'border-gray-200', icon: AlertCircle };
+      case "Active":
+        return {
+          color: "text-green-600",
+          bg: "bg-green-50",
+          border: "border-green-200",
+          icon: CheckCircle,
+        };
+      case "Expired":
+        return {
+          color: "text-red-600",
+          bg: "bg-red-50",
+          border: "border-red-200",
+          icon: AlertCircle,
+        };
+      case "Suspended":
+        return {
+          color: "text-yellow-600",
+          bg: "bg-yellow-50",
+          border: "border-yellow-200",
+          icon: AlertCircle,
+        };
+      default:
+        return {
+          color: "text-gray-600",
+          bg: "bg-gray-50",
+          border: "border-gray-200",
+          icon: AlertCircle,
+        };
     }
   };
 
-  if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-        <p className="text-gray-600 font-medium">Loading student details...</p>
+  if (loading)
+    return (
+      <div className="flex justify-center items-center h-screen">
+        Loading...
       </div>
-    </div>
-  );
-
-  if (error || !student) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center p-6 bg-white rounded-lg shadow-md border border-gray-200">
-        <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
-        <h2 className="text-2xl font-semibold text-gray-800 mb-2">Error Loading Student</h2>
-        <p className="text-gray-600 mb-4">{error || 'Student not found'}</p>
-        <Button onClick={() => router.back()} variant="outline">
-          Go Back
-        </Button>
+    );
+  if (error || !student)
+    return (
+      <div className="text-center text-red-500">
+        Error: {error || "Student not found"}
       </div>
-    </div>
-  );
+    );
 
+  const daysRemaining = getDaysRemaining(student.subscriptionEndDate);
   const statusConfig = getStatusConfig(student.status);
   const StatusIcon = statusConfig.icon;
-  const daysRemaining = getDaysRemaining(student.subscriptionEndDate);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-6xl mx-auto space-y-8">
-        <Button
-          variant="ghost"
-          onClick={() => router.back()}
-          className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back to Members
-        </Button>
-
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-8 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-2">
-              <User className="h-10 w-10 text-blue-600" />
-              <h1 className="text-3xl font-bold text-gray-900">{student.name}</h1>
-            </div>
-
-            <div className="flex flex-wrap gap-4 text-gray-600 mb-4">
-              {student.phoneNumber && <div className="flex items-center gap-2"><Phone className="h-4 w-4" />{student.phoneNumber}</div>}
-              {student.email && <div className="flex items-center gap-2"><Mail className="h-4 w-4" />{student.email}</div>}
-            </div>
-
-            {student.address && <div className="flex items-center gap-2 text-gray-600 mb-4"><MapPin className="h-4 w-4" />{student.address}</div>}
-
-            <div className="text-sm text-gray-500">Member ID: {student._id}</div>
-          </div>
-
-          <div className={`flex items-center gap-2 px-4 py-2 rounded-full ${statusConfig.bg} ${statusConfig.border} border`}>
-            <StatusIcon className={`h-4 w-4 ${statusConfig.color}`} />
-            <span className={`font-medium ${statusConfig.color}`}>{student.status}</span>
+    <div className="min-h-screen bg-gray-50 py-10 px-6 sm:px-10">
+      <div className="max-w-4xl mx-auto space-y-8">
+        <div className="flex justify-between items-center">
+          <Button
+            onClick={() => router.push("/home/students")}
+            variant="ghost"
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" /> Back
+          </Button>
+          <div className="flex gap-2">
+            <EditModal student={student} onSave={setStudent} />
+            <RenewalModal
+              student={student}
+              onRenewalSuccess={(updatedStudent: any) => {
+                setStudent(updatedStudent);
+                fetchStudentData();
+              }}
+            />
+            <Button
+              variant="destructive"
+              onClick={handleDelete}
+              disabled={isDeleting}
+              className="flex items-center gap-2"
+            >
+              <Trash2 className="h-4 w-4" />
+              {isDeleting ? "Deleting..." : "Delete"}
+            </Button>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition">
-            <div className="flex items-center gap-3 mb-3">{getMembershipIcon(student.membershipType)}<h3 className="text-lg font-semibold text-gray-800">Membership Type</h3></div>
-            <p className="text-2xl font-bold text-gray-900">{student.membershipType}</p>
+        <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-semibold flex items-center gap-2">
+              {getMembershipIcon(student.membershipType)}
+              {student.name}
+            </h1>
+            <div
+              className={`flex items-center gap-2 px-3 py-1 rounded-full border ${statusConfig.border} ${statusConfig.bg}`}
+            >
+              <StatusIcon className={`h-4 w-4 ${statusConfig.color}`} />
+              <span className={`font-medium ${statusConfig.color}`}>
+                {student.status}
+              </span>
+            </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition">
-            <div className="flex items-center gap-3 mb-3"><Calendar className="h-5 w-5 text-green-500" /><h3 className="text-lg font-semibold text-gray-800">Start Date</h3></div>
-            <p className="text-2xl font-bold text-gray-900">{student.subscriptionStartDate ? formatDate(student.subscriptionStartDate) : 'N/A'}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-gray-700">
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4 text-gray-500" />
+              {student.phoneNumber || "N/A"}
+            </div>
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4 text-gray-500" />
+              {student.email || "N/A"}
+            </div>
+            <div className="flex items-center gap-2">
+              <MapPin className="h-4 w-4 text-gray-500" />
+              {student.address || "N/A"}
+            </div>
+            <div className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4 text-gray-500" />₹
+              {student.paymentAmount || "0"}
+            </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6 hover:shadow-lg transition">
-            <div className="flex items-center gap-3 mb-3"><Clock className="h-5 w-5 text-red-500" /><h3 className="text-lg font-semibold text-gray-800">End Date</h3></div>
-            <p className="text-2xl font-bold text-gray-900">{formatDate(student.subscriptionEndDate)}</p>
-            {daysRemaining > 0 && <p className="text-sm text-gray-500 mt-1">{daysRemaining} days remaining</p>}
-            {daysRemaining <= 0 && student.status === 'Active' && <p className="text-sm text-red-500 mt-1">Expired {Math.abs(daysRemaining)} days ago</p>}
+          <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-gray-500" />
+              Start: {formatDate(student.subscriptionStartDate || "")}
+            </div>
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-gray-500" />
+              End: {formatDate(student.subscriptionEndDate)}
+            </div>
+            <div className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4 text-gray-500" />
+              Days Remaining:{" "}
+              {daysRemaining > 0 ? `${daysRemaining} days` : "Expired"}
+            </div>
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4 text-gray-500" />
+              Membership: {student.membershipType}
+            </div>
+            {student.duration && (
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-gray-500" />
+                Duration: {student.duration} month(s)
+              </div>
+            )}
+            {student.customAmount && student.membershipType === "Custom" && (
+              <div className="flex items-center gap-2">
+                <DollarSign className="h-4 w-4 text-gray-500" />
+                Custom Amount: ₹{student.customAmount}
+              </div>
+            )}
+            {student.age && (
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-gray-500" />
+                Age: {student.age}
+              </div>
+            )}
           </div>
         </div>
 
-        {(student.status === 'Expired' || daysRemaining <= 7) && student.status !== 'Suspended' && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4 flex items-start gap-3">
-            <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
-            <div>
-              <h4 className="font-semibold text-yellow-800">{student.status === 'Expired' ? 'Membership Expired' : 'Membership Expiring Soon'}</h4>
-              <p className="text-yellow-700 text-sm">{student.status === 'Expired' ? 'This member\'s subscription has expired. Consider renewing.' : `Expires in ${daysRemaining} days.`}</p>
+        <div className="bg-white shadow-sm rounded-xl border border-gray-200 p-6">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <Receipt className="h-5 w-5 text-blue-500" />
+            Payment History
+          </h2>
+          {payments.length > 0 ? (
+            <div className="overflow-x-auto">
+              <table className="min-w-full border border-gray-200 text-sm">
+                <thead className="bg-gray-100 text-gray-700">
+                  <tr>
+                    <th className="p-2 text-left">Date & Time</th>
+                    <th className="p-2 text-left">Amount</th>
+                    <th className="p-2 text-left">Duration</th>
+                    <th className="p-2 text-left">Method</th>
+                    <th className="p-2 text-left">Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {payments.map((payment) => (
+                    <tr key={payment._id} className="border-t hover:bg-gray-50">
+                      <td className="p-2">
+                        {formatDateTime(payment.createdAt)}
+                      </td>
+                      <td className="p-2">₹{payment.amount}</td>
+                      <td className="p-2">{payment.duration || 1} month(s)</td>
+                      <td className="p-2">{payment.paymentMethod}</td>
+                      <td className="p-2">{payment.notes || "—"}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
             </div>
-          </div>
-        )}
-
-        <div className="bg-white rounded-xl shadow-md border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Actions</h3>
-          <div className="flex flex-wrap gap-4">
-            <EditModal student={student} />
-            <RenewalModal student={student} onRenewalSuccess={(updatedStudent) => setStudent(updatedStudent)} />
-            {student.status === 'Suspended' && (
-              <Button variant="outline" className="flex items-center gap-2 border-green-200 text-green-700 hover:bg-green-50 transition" onClick={() => reactivateMember(student._id)}>
-                <CheckCircle className="h-4 w-4" /> Reactivate
-              </Button>
-            )}
-            {student.status === 'Active' && (
-              <Button variant="outline" className="flex items-center gap-2 border-red-200 text-red-700 hover:bg-red-50 transition" onClick={() => suspendMember(student._id)}>
-                <AlertCircle className="h-4 w-4" /> Suspend
-              </Button>
-            )}
-          </div>
+          ) : (
+            <div className="text-gray-500 text-center py-4">
+              No payment history found
+            </div>
+          )}
         </div>
       </div>
     </div>

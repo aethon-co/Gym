@@ -1,12 +1,13 @@
 import { connectDb } from "@/db";
 import Member from "@/models/member";
+import Payment from "@/models/payments";
 import { NextResponse, NextRequest } from "next/server";
 
 export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
     try {
         await connectDb();
         const { id } = await context.params; 
-        const { amount, membershipType, renewalMonths = 1 } = await req.json();
+        const { amount, membershipType, renewalMonths = 1, paymentMethod = "Cash" } = await req.json();
         
         if (!amount || amount <= 0) {
             return NextResponse.json({ 
@@ -31,7 +32,6 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
         const today = new Date();
         const currentEndDate = new Date(member.subscriptionEndDate);
 
-
         if (currentEndDate <= today || member.status === 'Expired') {
             newEndDate = new Date(today);
         } else {
@@ -49,6 +49,13 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
         }
 
         await member.save();
+
+        await Payment.create({
+            memberId: id,
+            amount: amount,
+            paymentMethod: paymentMethod,
+            notes: `Membership renewal - ${renewalMonths} month(s) - ${membershipType || member.membershipType}`
+        });
 
         return NextResponse.json({ 
             success: true,

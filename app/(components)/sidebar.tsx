@@ -1,10 +1,10 @@
-"use client"
-import Link from 'next/link';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { ScrollArea } from '@/components/ui/scroll-area';
-import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
+"use client";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
 import {
   Users,
   ClipboardCheck,
@@ -13,71 +13,69 @@ import {
   Calendar,
   TrendingUp,
   Settings,
-  Bell
-} from 'lucide-react';
-import { useEffect, useState } from 'react';
+  Bell,
+} from "lucide-react";
+import { useEffect, useState } from "react";
 
 type NavItemsType = {
-  href: string
-  label: string
-  icon: any
-  badge?: string
-  color: string
-}
+  href: string;
+  label: string;
+  icon: any;
+  badge?: string;
+  color: string;
+};
 
 const Sidebar = () => {
-   const [count, setCount] = useState<number | null>(null);
+  const [count, setCount] = useState<number | null>(null);
   useEffect(() => {
-    const fetchMemberCount = async()=>{
-      try{
-        const response = await fetch('/api/members/count');
+    const fetchMemberCount = async () => {
+      try {
+        const response = await fetch("/api/members/count");
         const data = await response.json();
         setCount(data.count);
-      }catch(err){
+      } catch (err) {
         console.error("Fetch count error:", err);
       }
-    }
+    };
     fetchMemberCount();
   }, []);
 
   const mainNavItems: NavItemsType[] = [
     {
-      href: './students',
-      label: 'Members',
+      href: "./students",
+      label: "Members",
       icon: Users,
-       badge: count !== null ? count.toString() : '...',
-      color: 'text-blue-600'
+      badge: count !== null ? count.toString() : "...",
+      color: "text-blue-600",
     },
     {
-      href: './attendance',
-      label: 'Attendance',
+      href: "./attendance",
+      label: "Attendance",
       icon: ClipboardCheck,
-      color: 'text-green-600'
+      color: "text-green-600",
     },
     {
-      href: './newStudents',
-      label: 'Registration',
+      href: "./newStudents",
+      label: "Registration",
       icon: UserPlus,
-      color: 'text-purple-600'
-    }
+      color: "text-purple-600",
+    },
   ];
 
   const secondaryNavItems: NavItemsType[] = [
     {
-      href: './analytics',
-      label: 'Analytics',
+      href: "./analytics",
+      label: "Analytics",
       icon: TrendingUp,
-      color: 'text-cyan-600'
+      color: "text-cyan-600",
     },
     {
-      href: './settings',
-      label: 'Settings',
+      href: "./settings",
+      label: "Settings",
       icon: Settings,
-      color: 'text-gray-600'
-    }
+      color: "text-gray-600",
+    },
   ];
-
- 
 
   return (
     <div className="flex h-full w-72 flex-col border-r bg-background">
@@ -87,12 +85,8 @@ const Sidebar = () => {
             <Dumbbell className="h-5 w-5 text-white" />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-lg font-bold tracking-tight">
-              Gym admin
-            </h1>
-            <p className="text-xs text-muted-foreground">
-              Gym Management
-            </p>
+            <h1 className="text-lg font-bold tracking-tight">Gym admin</h1>
+            <p className="text-xs text-muted-foreground">Gym Management</p>
           </div>
         </div>
       </div>
@@ -107,7 +101,11 @@ const Sidebar = () => {
               {mainNavItems.map((item) => {
                 const IconComponent = item.icon;
                 return (
-                  <Link key={item.href} href={`/home/${item.href}`} className="block">
+                  <Link
+                    key={item.href}
+                    href={`/home/${item.href}`}
+                    className="block"
+                  >
                     <Button
                       variant="ghost"
                       className={cn(
@@ -116,14 +114,22 @@ const Sidebar = () => {
                       )}
                     >
                       <div className="flex items-center space-x-3 relative z-10 w-full">
-                        <IconComponent className={cn("h-4 w-4 transition-colors", item.color)} />
+                        <IconComponent
+                          className={cn(
+                            "h-4 w-4 transition-colors",
+                            item.color
+                          )}
+                        />
                         <span className="flex-1 text-left">{item.label}</span>
                         {item.badge && (
                           <Badge
-                            variant={item.badge === 'Live' ? 'default' : 'secondary'}
+                            variant={
+                              item.badge === "Live" ? "default" : "secondary"
+                            }
                             className={cn(
                               "h-5 px-1.5 text-xs font-medium",
-                              item.badge === 'Live' && "bg-green-100 text-green-800 animate-pulse"
+                              item.badge === "Live" &&
+                                "bg-green-100 text-green-800 animate-pulse"
                             )}
                           >
                             {item.badge}
@@ -148,7 +154,11 @@ const Sidebar = () => {
               {secondaryNavItems.map((item) => {
                 const IconComponent = item.icon;
                 return (
-                  <Link key={item.href} href={`/home/${item.href}`} className="block">
+                  <Link
+                    key={item.href}
+                    href={`/home/${item.href}`}
+                    className="block"
+                  >
                     <Button
                       variant="ghost"
                       className="w-full hover:cursor-pointer justify-start h-10 px-3 font-medium hover:bg-accent/50 transition-all group"
@@ -157,7 +167,10 @@ const Sidebar = () => {
                         <IconComponent className={cn("h-4 w-4", item.color)} />
                         <span className="flex-1 text-left">{item.label}</span>
                         {item?.badge && (
-                          <Badge variant="destructive" className="h-4 w-4 p-0 flex items-center justify-center text-xs">
+                          <Badge
+                            variant="destructive"
+                            className="h-4 w-4 p-0 flex items-center justify-center text-xs"
+                          >
                             {item.badge}
                           </Badge>
                         )}
@@ -170,8 +183,6 @@ const Sidebar = () => {
           </div>
         </div>
       </ScrollArea>
-
-
     </div>
   );
 };

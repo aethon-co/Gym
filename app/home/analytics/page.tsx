@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import React, { useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -32,7 +32,10 @@ import {
 } from 'lucide-react'
 import toast, { Toaster } from 'react-hot-toast'
 
-const monthlyRevenueData = [
+type MonthlyData = { month: string; revenue: number; members: number }
+type YearlyData = { year: string; revenue: number; members: number }
+
+const monthlyRevenueData: MonthlyData[] = [
   { month: 'Jan', revenue: 12500, members: 45 },
   { month: 'Feb', revenue: 15200, members: 52 },
   { month: 'Mar', revenue: 18700, members: 63 },
@@ -47,7 +50,7 @@ const monthlyRevenueData = [
   { month: 'Dec', revenue: 42300, members: 118 }
 ]
 
-const yearlyData = [
+const yearlyData: YearlyData[] = [
   { year: '2021', revenue: 185000, members: 420 },
   { year: '2022', revenue: 234000, members: 580 },
   { year: '2023', revenue: 289000, members: 720 },
@@ -63,51 +66,49 @@ const planDistribution = [
 
 const Analytics = () => {
   const [viewMode, setViewMode] = useState<'monthly' | 'yearly'>('monthly')
-  const [selectedYear, setSelectedYear] = useState('2024')
   const [isExporting, setIsExporting] = useState(false)
 
-  const currentData = viewMode === 'monthly' ? monthlyRevenueData : yearlyData
+  const currentData: (MonthlyData | YearlyData)[] = viewMode === 'monthly' ? monthlyRevenueData : yearlyData
   const totalRevenue = currentData.reduce((sum, item) => sum + item.revenue, 0)
   const totalMembers = currentData.reduce((sum, item) => sum + item.members, 0)
   const avgRevenue = Math.round(totalRevenue / currentData.length)
 
   const handleExportCSV = async () => {
     setIsExporting(true)
-    
     const loadingToastId = toast.loading('Preparing CSV export...', {
       style: { border: '2px solid #000', padding: '16px', color: '#000', backgroundColor: '#fff', fontWeight: '600' }
     })
-
     try {
       await new Promise(resolve => setTimeout(resolve, 1500))
-      
       const csvData = currentData.map(item => ({
-        Period: viewMode === 'monthly' ? item.month : item.year,
+        Period: 'month' in item ? item.month : item.year,
         Revenue: `₹${item.revenue.toLocaleString()}`,
         Members: item.members,
         'Avg Revenue per Member': `₹${Math.round(item.revenue / item.members)}`
       }))
-
       const headers = Object.keys(csvData[0])
-      const csvContent = [ headers.join(','), ...csvData.map(row => headers.map(header => row[header]).join(',')) ].join('\n')
-
+      const csvContent = [
+        headers.join(','),
+        ...csvData.map(row =>
+          headers.map(header => (row as Record<string, string | number>)[header]).join(',')
+        )
+      ].join('\n')
       const blob = new Blob([csvContent], { type: 'text/csv' })
       const url = window.URL.createObjectURL(blob)
       const link = document.createElement('a')
       link.href = url
-      link.download = `analytics-${viewMode}-${selectedYear}.csv`
+      link.download = `analytics-${viewMode}.csv`
       document.body.appendChild(link)
       link.click()
       document.body.removeChild(link)
       window.URL.revokeObjectURL(url)
-
       toast.success('CSV exported successfully!', {
         id: loadingToastId,
         style: { border: '2px solid #000', padding: '16px', color: '#fff', backgroundColor: '#000', fontWeight: '600' },
         iconTheme: { primary: '#fff', secondary: '#000' },
         duration: 3000
       })
-    } catch (error) {
+    } catch {
       toast.error('Export failed. Please try again.', {
         id: loadingToastId,
         style: { border: '2px solid #dc2626', padding: '16px', color: '#dc2626', backgroundColor: '#fff', fontWeight: '600' }
@@ -121,7 +122,6 @@ const Analytics = () => {
     <div className="text-black p-6 pt-0">
       <Toaster />
       <div className="max-w-7xl mx-auto space-y-6">
-
         <Card className="bg-white border-2 border-gray-200 shadow-2xl">
           <CardHeader className="border-b border-gray-100 pb-6">
             <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -173,7 +173,6 @@ const Analytics = () => {
               </div>
             </CardContent>
           </Card>
-
           <Card className="bg-white border-2 border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -189,7 +188,6 @@ const Analytics = () => {
               </div>
             </CardContent>
           </Card>
-
           <Card className="bg-white border-2 border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -205,7 +203,6 @@ const Analytics = () => {
               </div>
             </CardContent>
           </Card>
-
           <Card className="bg-white border-2 border-gray-200 shadow-lg hover:shadow-xl transition-shadow">
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
@@ -224,7 +221,6 @@ const Analytics = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
           <Card className="bg-white border-2 border-gray-200 shadow-lg">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="text-xl flex items-center gap-2 text-black">
@@ -236,7 +232,7 @@ const Analytics = () => {
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={currentData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey={viewMode === 'monthly' ? 'month' : 'year'} tick={{ fill: '#374151', fontSize: 12 }} />
+                  <XAxis dataKey={'month' in currentData[0] ? 'month' : 'year'} tick={{ fill: '#374151', fontSize: 12 }} />
                   <YAxis tick={{ fill: '#374151', fontSize: 12 }} tickFormatter={(value) => `₹${(value / 1000).toFixed(0)}k`} />
                   <Tooltip formatter={(value) => [`₹${value.toLocaleString()}`, 'Revenue']} contentStyle={{ backgroundColor: 'white', border: '2px solid #000', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
                   <Bar dataKey="revenue" fill="#000000" radius={[4, 4, 0, 0]} />
@@ -244,7 +240,6 @@ const Analytics = () => {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-
           <Card className="bg-white border-2 border-gray-200 shadow-lg">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="text-xl flex items-center gap-2 text-black">
@@ -256,7 +251,7 @@ const Analytics = () => {
               <ResponsiveContainer width="100%" height={300}>
                 <LineChart data={currentData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey={viewMode === 'monthly' ? 'month' : 'year'} tick={{ fill: '#374151', fontSize: 12 }} />
+                  <XAxis dataKey={'month' in currentData[0] ? 'month' : 'year'} tick={{ fill: '#374151', fontSize: 12 }} />
                   <YAxis tick={{ fill: '#374151', fontSize: 12 }} />
                   <Tooltip formatter={(value) => [value, 'Members']} contentStyle={{ backgroundColor: 'white', border: '2px solid #000', borderRadius: '8px', boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)' }} />
                   <Line type="monotone" dataKey="members" stroke="#000000" strokeWidth={3} dot={{ fill: '#000000', strokeWidth: 2, r: 6 }} activeDot={{ r: 8, stroke: '#000000', strokeWidth: 2 }} />
@@ -264,11 +259,9 @@ const Analytics = () => {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
           <Card className="bg-white border-2 border-gray-200 shadow-lg">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="text-xl flex items-center gap-2 text-black">
@@ -296,7 +289,6 @@ const Analytics = () => {
               </div>
             </CardContent>
           </Card>
-
           <Card className="bg-white border-2 border-gray-200 shadow-lg">
             <CardHeader className="border-b border-gray-100">
               <CardTitle className="text-xl flex items-center gap-2 text-black">
@@ -318,7 +310,7 @@ const Analytics = () => {
                   <tbody>
                     {currentData.map((item, index) => (
                       <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-3 px-2 font-medium text-black">{viewMode === 'monthly' ? item.month : item.year}</td>
+                        <td className="py-3 px-2 font-medium text-black">{'month' in item ? item.month : item.year}</td>
                         <td className="py-3 px-2 text-black">₹{item.revenue.toLocaleString()}</td>
                         <td className="py-3 px-2 text-black">{item.members}</td>
                         <td className="py-3 px-2 text-black">₹{Math.round(item.revenue / item.members).toLocaleString()}</td>
@@ -329,9 +321,7 @@ const Analytics = () => {
               </div>
             </CardContent>
           </Card>
-
         </div>
-
       </div>
     </div>
   )

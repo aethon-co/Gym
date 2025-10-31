@@ -19,15 +19,15 @@ export const GET = async (
     const member = await Member.findById(id);
 
     if (!member) {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
     const currentDate = new Date();
-    if (member.subscriptionEndDate < currentDate && member.status === 'Active') {
-      member.status = 'Expired';
+    if (
+      member.subscriptionEndDate < currentDate &&
+      member.status === "Active"
+    ) {
+      member.status = "Expired";
       await member.save();
     }
 
@@ -35,8 +35,8 @@ export const GET = async (
       _id: member._id.toString(),
       name: member.name,
       age: member.age,
-      phoneNumber: member.phoneNumber, 
-      email: member.email || null, 
+      phoneNumber: member.phoneNumber,
+      email: member.email || null,
       address: member.address || null,
       membershipType: member.membershipType,
       status: member.status,
@@ -46,15 +46,17 @@ export const GET = async (
       createdAt: member.createdAt.toISOString(),
       updatedAt: member.updatedAt.toISOString(),
       isCurrentlyActive: member.isActive,
-      daysRemaining: Math.ceil((member.subscriptionEndDate.getTime() - currentDate.getTime()) / (1000 * 60 * 60 * 24))
+      daysRemaining: Math.ceil(
+        (member.subscriptionEndDate.getTime() - currentDate.getTime()) /
+          (1000 * 60 * 60 * 24)
+      ),
     };
 
     return NextResponse.json(memberData, { status: 200 });
-
   } catch (error: any) {
     console.error("GET member error:", error);
-    
-    if (error.name === 'CastError') {
+
+    if (error.name === "CastError") {
       return NextResponse.json(
         { error: "Invalid member ID format" },
         { status: 400 }
@@ -78,10 +80,7 @@ export const DELETE = async (
     const deletedMember = await Member.findByIdAndDelete(id);
 
     if (!deletedMember) {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
     return NextResponse.json(
@@ -105,19 +104,21 @@ export const PUT = async (
     await connectDb();
     const { id } = await context.params;
     const body = await req.json();
-        const allowedUpdates = [
-      'name', 
-      'age', 
-      'phoneNumber', 
-      'membershipType', 
-      'subscriptionStartDate', 
-      'subscriptionEndDate', 
-      'status', 
-      'paymentAmount'
+    const allowedUpdates = [
+      "name",
+      "age",
+      "phoneNumber",
+      "membershipType",
+      "subscriptionStartDate",
+      "subscriptionEndDate",
+      "status",
+      "paymentAmount",
     ];
-    
+
     const updates = Object.keys(body);
-    const isValidOperation = updates.every(update => allowedUpdates.includes(update));
+    const isValidOperation = updates.every((update) =>
+      allowedUpdates.includes(update)
+    );
 
     if (!isValidOperation) {
       return NextResponse.json(
@@ -126,17 +127,13 @@ export const PUT = async (
       );
     }
 
-    const updatedMember = await Member.findByIdAndUpdate(
-      id,
-      body,
-      { new: true, runValidators: true }
-    );
+    const updatedMember = await Member.findByIdAndUpdate(id, body, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedMember) {
-      return NextResponse.json(
-        { error: "Member not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Member not found" }, { status: 404 });
     }
 
     const memberData = {
@@ -149,22 +146,18 @@ export const PUT = async (
       subscriptionStartDate: updatedMember.subscriptionStartDate.toISOString(),
       subscriptionEndDate: updatedMember.subscriptionEndDate.toISOString(),
       paymentAmount: updatedMember.paymentAmount,
-      updatedAt: updatedMember.updatedAt.toISOString()
+      updatedAt: updatedMember.updatedAt.toISOString(),
     };
 
     return NextResponse.json(
       { message: "Member updated successfully", member: memberData },
       { status: 200 }
     );
-
   } catch (error: any) {
     console.error("Update error:", error);
 
-    if (error.name === 'ValidationError') {
-      return NextResponse.json(
-        { error: error.message },
-        { status: 400 }
-      );
+    if (error.name === "ValidationError") {
+      return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
     if (error.code === 11000) {
