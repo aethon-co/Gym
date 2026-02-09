@@ -10,6 +10,17 @@ export interface StudentData {
   subscriptionEndDate: string | number;
   subscriptionStartDate?: string | number;
   paymentAmount?: number;
+  fingerprintId?: number;
+  coupleGroupId?: string | null;
+  couplePartnerId?: string | null;
+  couplePartner?: {
+    _id: string;
+    name: string;
+    phoneNumber?: string;
+    email?: string;
+    membershipType?: string;
+    status?: string;
+  } | null;
   duration?: number;
   customAmount?: number;
   createdAt?: string;

@@ -40,21 +40,41 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
         
         newEndDate.setMonth(newEndDate.getMonth() + renewalMonths);
 
+        const targetMembershipType =
+          membershipType && ["Basic", "Premium", "Couple", "Student", "Custom"].includes(membershipType)
+            ? membershipType
+            : member.membershipType;
+
         member.paymentAmount = amount;
         member.subscriptionEndDate = newEndDate;
         member.status = "Active";
-        
-        if (membershipType && ['Basic', 'Premium', 'Couple', 'Student'].includes(membershipType)) {
-            member.membershipType = membershipType;
-        }
-
+        member.membershipType = targetMembershipType;
         await member.save();
+
+        if (member.coupleGroupId) {
+          await Member.updateMany(
+            {
+              coupleGroupId: member.coupleGroupId,
+              _id: { $ne: member._id },
+            },
+            {
+              $set: {
+                subscriptionEndDate: newEndDate,
+                status: "Active",
+                membershipType: "Couple",
+                paymentAmount: amount,
+              },
+            }
+          );
+        }
 
         await Payment.create({
             memberId: id,
+            coupleGroupId: member.coupleGroupId || null,
             amount: amount,
             paymentMethod: paymentMethod,
-            notes: `Membership renewal - ${renewalMonths} month(s) - ${membershipType || member.membershipType}`
+            duration: renewalMonths,
+            notes: `${member.coupleGroupId ? "Couple " : ""}membership renewal - ${renewalMonths} month(s) - ${targetMembershipType}`
         });
 
         return NextResponse.json({ 

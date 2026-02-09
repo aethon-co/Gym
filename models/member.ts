@@ -16,7 +16,7 @@ const memberSchema = new Schema(
         },
         message: "Please provide a valid email address",
       },
-      required: true,
+      required: false,
     },
     phoneNumber: { type: String, required: true, unique: true, trim: true },
     address: { type: String, required: true, trim: true },
@@ -48,10 +48,29 @@ const memberSchema = new Schema(
       max: 255,
       unique: true,
       sparse: true,
+      set: (value: unknown) => {
+        if (value === null || value === undefined || value === "") return undefined;
+        const parsed = Number(value);
+        return Number.isInteger(parsed) ? parsed : value;
+      },
+    },
+    coupleGroupId: {
+      type: String,
+      default: null,
+      index: true,
+    },
+    couplePartnerId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Member",
+      default: null,
     },
   },
   { timestamps: true }
 );
+
+memberSchema.index({ fingerprintId: 1 });
+memberSchema.index({ status: 1, subscriptionEndDate: 1 });
+memberSchema.index({ coupleGroupId: 1, couplePartnerId: 1 });
 
 memberSchema.pre("save", function (next) {
   if (
@@ -74,7 +93,7 @@ memberSchema.pre("save", async function (next) {
   const members = await Member.find({}, "fingerprintId").lean();
   const usedIds = new Set(members.map((m) => m.fingerprintId).filter(Boolean));
 
-  for (let i = 2; i <= 255; i++) {
+  for (let i = 1; i <= 255; i++) {
     if (!usedIds.has(i)) {
       this.fingerprintId = i;
       return next();

@@ -6,8 +6,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { UserPlus, Phone, CalendarDays, Package, MapPin, User, Hash, DollarSign, CreditCard, Smartphone, Wallet, Mail, Clock } from "lucide-react"
-import { useState, useEffect } from "react"
+import { UserPlus, Phone, CalendarDays, User, CreditCard, Smartphone, Wallet, Mail, Clock, Fingerprint, CheckCircle2, AlertCircle, RefreshCw } from "lucide-react"
+import { useState } from "react"
 import toast, { Toaster } from 'react-hot-toast'
 
 interface FormData {
@@ -25,6 +25,10 @@ interface FormData {
 const RegisterMember = () => {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date())
   const [isLoading, setIsLoading] = useState(false)
+  const [isScanningFingerprint, setIsScanningFingerprint] = useState(false)
+  const [scannedFingerprintId, setScannedFingerprintId] = useState<number | null>(null)
+  const [fingerprintScanToken, setFingerprintScanToken] = useState<string>("")
+  const [fingerprintScanError, setFingerprintScanError] = useState<string>("")
   const [formData, setFormData] = useState<FormData>({
     name: '',
     age: '',
@@ -48,15 +52,25 @@ const RegisterMember = () => {
       toast.error('Please fill in all required fields')
       return
     }
+    if (!scannedFingerprintId || !fingerprintScanToken) {
+      toast.error('Please scan fingerprint before registration')
+      return
+    }
 
     if (formData.plan === 'Custom' && (!formData.customAmount || isNaN(parseFloat(formData.customAmount)) || parseFloat(formData.customAmount) <= 0)) {
       toast.error('Please enter a valid custom amount')
       return
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[A-Za-z]{2,}$/
     if (formData.email && !emailRegex.test(formData.email)) {
       toast.error('Please enter a valid email address')
+      return
+    }
+    const phoneRegex = /^[6-9]\d{9}$/
+    const normalizedPhone = formData.phone.replace(/\D/g, "")
+    if (!phoneRegex.test(normalizedPhone)) {
+      toast.error("Please enter a valid 10-digit Indian mobile number")
       return
     }
 
@@ -68,12 +82,14 @@ const RegisterMember = () => {
         name: formData.name,
         age: parseInt(formData.age),
         email: formData.email,
-        phoneNumber: formData.phone,
+        phoneNumber: normalizedPhone,
         address: formData.address,
         membershipType: formData.plan,
         duration: parseInt(formData.duration),
         subscriptionStartDate: selectedDate?.toISOString(),
         paymentMethod: formData.paymentMethod,
+        fingerprintId: scannedFingerprintId,
+        fingerprintScanToken,
         ...(formData.plan === 'Custom' && { customAmount: parseFloat(formData.customAmount || '0') })
       }
 
@@ -98,6 +114,9 @@ const RegisterMember = () => {
           paymentMethod: '' 
         })
         setSelectedDate(new Date())
+        setScannedFingerprintId(null)
+        setFingerprintScanToken("")
+        setFingerprintScanError("")
       } else {
         throw new Error(result.error || 'Registration failed')
       }
@@ -121,10 +140,43 @@ const RegisterMember = () => {
       paymentMethod: '' 
     })
     setSelectedDate(new Date())
+    setScannedFingerprintId(null)
+    setFingerprintScanToken("")
+    setFingerprintScanError("")
+  }
+
+  const handleFingerprintScan = async () => {
+    setIsScanningFingerprint(true)
+    setFingerprintScanError("")
+    setScannedFingerprintId(null)
+    setFingerprintScanToken("")
+    const loadingToastId = toast.loading("Waiting for fingerprint scan...")
+    try {
+      const response = await fetch("/api/fingerprints/enroll", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      })
+
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.error || "Fingerprint scan failed")
+      }
+
+      setScannedFingerprintId(result.fingerprintId)
+      setFingerprintScanToken(result.scanToken)
+      toast.success(`Fingerprint scanned (ID: ${result.fingerprintId})`, { id: loadingToastId })
+    } catch (error) {
+      const message = error instanceof Error ? error.message : "Fingerprint scan failed"
+      setFingerprintScanError(message)
+      toast.error(message, { id: loadingToastId })
+    } finally {
+      setIsScanningFingerprint(false)
+    }
   }
 
   const isCustomPlanSelected = formData.plan === 'Custom'
-  const isFormValid = formData.name && formData.age && formData.phone && formData.address && formData.plan && formData.paymentMethod && selectedDate && (!isCustomPlanSelected || (formData.customAmount && !isNaN(parseFloat(formData.customAmount)) && parseFloat(formData.customAmount) > 0))
+  const isFormValid = formData.name && formData.age && formData.phone && formData.address && formData.plan && formData.paymentMethod && selectedDate && scannedFingerprintId && fingerprintScanToken && (!isCustomPlanSelected || (formData.customAmount && !isNaN(parseFloat(formData.customAmount)) && parseFloat(formData.customAmount) > 0))
 
   return (
     <div className="h-screen bg-gradient-to-br from-slate-50 to-gray-100 flex flex-col">
@@ -134,7 +186,7 @@ const RegisterMember = () => {
           <UserPlus className="w-6 h-6 text-white" />
         </div>
         <h1 className="text-2xl font-bold text-slate-900 mb-1">Member Registration</h1>
-        <p className="text-slate-600 text-sm">Complete the form below to register a new member</p>
+        <p className="text-slate-600 text-sm">Complete the form below to register a new member. Fingerprint ID is assigned automatically by the scanner/backend.</p>
       </div>
 
       <div className="flex-1 px-4 pb-4 overflow-hidden">
@@ -164,7 +216,7 @@ const RegisterMember = () => {
 
                     <div>
                       <Label htmlFor="phone" className="text-sm font-semibold text-slate-700 mb-2 block">Phone</Label>
-                      <Input id="phone" type="tel" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} placeholder="Phone number" />
+                      <Input id="phone" type="tel" value={formData.phone} onChange={(e) => handleInputChange('phone', e.target.value)} placeholder="10-digit mobile" maxLength={10} />
                     </div>
                   </div>
 
@@ -250,6 +302,47 @@ const RegisterMember = () => {
                           <span className="text-xs mt-1 font-semibold">{method.label}</span>
                         </button>
                       ))}
+                    </div>
+                  </div>
+
+                  <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <Label className="text-sm font-semibold text-slate-700 mb-1 block">Fingerprint Scan</Label>
+                        {!scannedFingerprintId && !fingerprintScanError && (
+                          <p className="text-xs text-slate-500">Click scan, then place finger on scanner.</p>
+                        )}
+                        {scannedFingerprintId && (
+                          <p className="text-sm text-green-700 flex items-center gap-1">
+                            <CheckCircle2 className="w-4 h-4" />
+                            Scan successful. Fingerprint ID: <span className="font-semibold">{scannedFingerprintId}</span>
+                          </p>
+                        )}
+                        {fingerprintScanError && (
+                          <p className="text-sm text-red-600 flex items-center gap-1">
+                            <AlertCircle className="w-4 h-4" />
+                            {fingerprintScanError}
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        type="button"
+                        onClick={handleFingerprintScan}
+                        disabled={isScanningFingerprint}
+                        className="bg-slate-900 hover:bg-slate-800 text-white"
+                      >
+                        {isScanningFingerprint ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                            Scanning...
+                          </>
+                        ) : (
+                          <>
+                            <Fingerprint className="w-4 h-4 mr-2" />
+                            {scannedFingerprintId ? "Rescan" : "Scan Fingerprint"}
+                          </>
+                        )}
+                      </Button>
                     </div>
                   </div>
                 </div>

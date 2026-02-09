@@ -37,7 +37,7 @@ const StudentCard = ({ name, membershipType, status, subscriptionEndDate, id }: 
 
   return (
     <Link href={`./students/${id}`}>
-      <div className="bg-white min-w-[22vw] rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-all duration-200 p-6 h-full">
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-200 p-6 h-full">
         <div className="flex flex-col h-full justify-between">
           <div className="space-y-4">
             <div className="flex items-start justify-between">
@@ -70,7 +70,7 @@ const StudentCard = ({ name, membershipType, status, subscriptionEndDate, id }: 
               <p className="text-sm text-gray-600">
                 <span className="font-medium">Ended</span>{' '}
                 <span className="text-gray-900 font-semibold">
-                  {daysRemaining} days ago
+                  {Math.abs(daysRemaining)} days ago
                 </span>
               </p>
             }

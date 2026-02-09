@@ -21,7 +21,8 @@ interface StudentData {
   age?: number;
   phoneNumber?: string;
   email?: string;
-  membershipType: "Basic" | "Premium" | "Student" | "Couple";
+  fingerprintId?: number;
+  membershipType: "Basic" | "Premium" | "Student" | "Couple" | "Custom";
   status: "Active" | "Expired" | "Suspended";
   subscriptionEndDate: string | number;
   subscriptionStartDate?: string | number;
@@ -69,7 +70,8 @@ const Students = () => {
       const matchesSearch =
         student.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         student._id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        student.email?.toLowerCase().includes(searchTerm.toLowerCase());
+        student.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        String(student.fingerprintId || "").includes(searchTerm);
       const matchesStatus = statusFilter === "All" || student.status === statusFilter;
       const matchesMembership =
         membershipFilter === "All" || student.membershipType === membershipFilter;
@@ -108,20 +110,21 @@ const Students = () => {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto h-screen overflow-y-auto">
+    <div className="p-8 max-w-7xl mx-auto h-screen overflow-y-auto">
       <div className="mb-8 flex flex-col items-center">
-        <div className="flex items-center justify-center w-14 h-14 bg-slate-900 rounded-2xl shadow-lg mb-3">
+        <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-slate-900 to-slate-700 rounded-2xl shadow-xl mb-3">
           <User className="w-7 h-7 text-white" />
         </div>
-        <h1 className="text-3xl font-bold text-slate-800 text-center">Members Management</h1>
+        <h1 className="text-4xl font-bold text-slate-900 text-center">Members Management</h1>
+        <p className="text-slate-500 mt-2">Track profiles, subscriptions, and member status in one place.</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
+      <div className="bg-white rounded-2xl shadow-lg border p-6 mb-6">
         <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
           <div className="relative flex-1 min-w-[300px]">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
             <Input
-              className="pl-12 pr-4 py-3 rounded-full border-2 border-gray-200 focus:border-blue-500 transition-colors w-full"
+              className="pl-12 pr-4 py-3 rounded-full border-2 border-slate-200 focus:border-slate-500 transition-colors w-full"
               type="text"
               value={searchTerm}
               placeholder="Search by name, ID, or email..."
@@ -189,7 +192,7 @@ const Students = () => {
           </p>
         </div>
       ) : (
-        <div className="flex max-w-[85vw] flex-wrap gap-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
           {filteredStudents.map((student) => (
             <StudentCard
               key={student._id}

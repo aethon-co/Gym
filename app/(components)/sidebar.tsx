@@ -78,15 +78,15 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="flex h-full w-72 flex-col border-r bg-background">
-      <div className="flex h-16 items-center border-b px-6">
+    <div className="flex h-full w-72 flex-col border-r border-slate-200 bg-white text-slate-900">
+      <div className="flex h-20 items-center border-b border-slate-200 px-6">
         <div className="flex items-center space-x-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-red-600 shadow-lg">
             <Dumbbell className="h-5 w-5 text-white" />
           </div>
           <div className="flex flex-col">
-            <h1 className="text-lg font-bold tracking-tight">Gym admin</h1>
-            <p className="text-xs text-muted-foreground">Gym Management</p>
+            <h1 className="text-lg font-bold tracking-tight">Gym Admin Pro</h1>
+            <p className="text-xs text-slate-500">Operations Dashboard</p>
           </div>
         </div>
       </div>
@@ -94,7 +94,7 @@ const Sidebar = () => {
       <ScrollArea className="flex-1 px-3 py-4">
         <div className="space-y-6">
           <div className="space-y-1">
-            <h2 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <h2 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
               Management
             </h2>
             <nav className="space-y-1">
@@ -109,7 +109,7 @@ const Sidebar = () => {
                     <Button
                       variant="ghost"
                       className={cn(
-                        "w-full hover:cursor-pointer justify-start h-11 px-3 font-medium transition-all hover:bg-accent/50",
+                        "w-full hover:cursor-pointer justify-start h-11 px-3 font-medium transition-all hover:bg-slate-100",
                         "group relative overflow-hidden"
                       )}
                     >
@@ -136,7 +136,7 @@ const Sidebar = () => {
                           </Badge>
                         )}
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-r from-accent/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                      <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                     </Button>
                   </Link>
                 );
@@ -144,10 +144,10 @@ const Sidebar = () => {
             </nav>
           </div>
 
-          <Separator className="mx-3" />
+          <Separator className="mx-3 bg-slate-200" />
 
           <div className="space-y-1">
-            <h2 className="px-3 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+            <h2 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
               More
             </h2>
             <nav className="space-y-1">
@@ -161,7 +161,7 @@ const Sidebar = () => {
                   >
                     <Button
                       variant="ghost"
-                      className="w-full hover:cursor-pointer justify-start h-10 px-3 font-medium hover:bg-accent/50 transition-all group"
+                      className="w-full hover:cursor-pointer justify-start h-10 px-3 font-medium hover:bg-slate-100 transition-all group"
                     >
                       <div className="flex items-center space-x-3 w-full">
                         <IconComponent className={cn("h-4 w-4", item.color)} />

@@ -36,6 +36,7 @@ interface EditModalProps {
     subscriptionStartDate?: string | number;
     subscriptionEndDate: string | number;
     paymentAmount?: number;
+    fingerprintId?: number;
   };
   onSave: (student: any) => void;
 }
@@ -127,7 +128,28 @@ const EditModal = ({ student, onSave }: EditModalProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    mutation.mutate(formData);
+    const rawFingerprintId = formData.fingerprintId as unknown;
+    const fingerprintIdValue =
+      rawFingerprintId === undefined ||
+      rawFingerprintId === null ||
+      rawFingerprintId === ""
+        ? undefined
+        : Number(rawFingerprintId);
+
+    if (
+      fingerprintIdValue !== undefined &&
+      (!Number.isInteger(fingerprintIdValue) ||
+        fingerprintIdValue < 1 ||
+        fingerprintIdValue > 255)
+    ) {
+      showToast("Fingerprint ID must be between 1 and 255", "error");
+      return;
+    }
+
+    mutation.mutate({
+      ...formData,
+      fingerprintId: fingerprintIdValue,
+    });
   };
 
   const isCustomMembership = formData.membershipType === "Custom";
@@ -214,6 +236,20 @@ const EditModal = ({ student, onSave }: EditModalProps) => {
                     Fixed amount for {formData.membershipType} membership
                   </p>
                 )}
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="fingerprintId">Fingerprint ID</Label>
+                <Input
+                  id="fingerprintId"
+                  name="fingerprintId"
+                  type="number"
+                  min={1}
+                  max={255}
+                  value={formData.fingerprintId || ""}
+                  onChange={handleChange}
+                  placeholder="Sensor slot ID (1-255)"
+                />
               </div>
 
               <div className="flex gap-4">
