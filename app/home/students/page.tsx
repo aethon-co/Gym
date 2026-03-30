@@ -110,21 +110,21 @@ const Students = () => {
   }
 
   return (
-    <div className="p-8 max-w-7xl mx-auto h-screen overflow-y-auto">
-      <div className="mb-8 flex flex-col items-center">
-        <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-slate-900 to-slate-700 rounded-2xl shadow-xl mb-3">
-          <User className="w-7 h-7 text-white" />
+    <div className="min-h-screen p-6 sm:p-10 max-w-7xl mx-auto overflow-y-auto bg-slate-50">
+      <div className="mb-10 flex flex-col items-center">
+        <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-orange-500 to-red-500 rounded-3xl shadow-lg shadow-orange-500/30 mb-5">
+          <User className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-4xl font-bold text-slate-900 text-center">Members Management</h1>
-        <p className="text-slate-500 mt-2">Track profiles, subscriptions, and member status in one place.</p>
+        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight text-center">Members Management</h1>
+        <p className="text-slate-500 font-medium mt-2">Track profiles, subscriptions, and member status in one place.</p>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-lg border p-6 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
-          <div className="relative flex-1 min-w-[300px]">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+      <div className="bg-white rounded-[32px] shadow-[0_10px_30px_rgba(15,23,42,0.06)] border border-slate-200/70 p-6 sm:p-7 mb-8">
+        <div className="flex flex-col xl:flex-row gap-4 xl:items-center">
+          <div className="relative w-full xl:flex-1">
+            <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <Input
-              className="pl-12 pr-4 py-3 rounded-full border-2 border-slate-200 focus:border-slate-500 transition-colors w-full"
+              className="h-14 w-full rounded-2xl border-slate-200 bg-slate-50/60 pl-12 pr-4 text-base shadow-sm transition-all focus:border-orange-500 focus:ring-orange-500/20"
               type="text"
               value={searchTerm}
               placeholder="Search by name, ID, or email..."
@@ -132,68 +132,76 @@ const Students = () => {
             />
           </div>
 
-          <div className="flex gap-3 items-center flex-wrap">
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">Filters:</span>
+          <div className="flex flex-wrap xl:flex-nowrap gap-3 xl:w-auto">
+            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+              <div className="flex items-center gap-2 pl-4 pr-3 py-3 border-r border-slate-200/60">
+                <Filter className="h-4 w-4 text-slate-400" />
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest hidden sm:inline">Filters</span>
+              </div>
+
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="px-4 py-3 bg-transparent text-sm font-semibold text-slate-700 outline-none focus:ring-0 border-none cursor-pointer min-w-[128px]"
+              >
+                <option value="All">All Status</option>
+                <option value="Active">Active</option>
+                <option value="Expired">Expired</option>
+                <option value="Suspended">Suspended</option>
+              </select>
+
+              <div className="w-px h-6 bg-slate-200/60 mx-1"></div>
+
+              <select
+                value={membershipFilter}
+                onChange={(e) => setMembershipFilter(e.target.value)}
+                className="px-4 py-3 bg-transparent text-sm font-semibold text-slate-700 outline-none focus:ring-0 border-none cursor-pointer min-w-[120px]"
+              >
+                <option value="All">All Types</option>
+                <option value="Basic">Basic</option>
+                <option value="Premium">Premium</option>
+                <option value="Student">Student</option>
+                <option value="Couple">Couple</option>
+              </select>
             </div>
-
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="All">All Status</option>
-              <option value="Active">Active</option>
-              <option value="Expired">Expired</option>
-              <option value="Suspended">Suspended</option>
-            </select>
-
-            <select
-              value={membershipFilter}
-              onChange={(e) => setMembershipFilter(e.target.value)}
-              className="px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="All">All Types</option>
-              <option value="Basic">Basic</option>
-              <option value="Premium">Premium</option>
-              <option value="Student">Student</option>
-              <option value="Couple">Couple</option>
-            </select>
 
             <Button
               onClick={handleRefresh}
               disabled={isFetching || refreshing}
               variant="outline"
-              size="sm"
-              className="flex items-center gap-2"
+              className="h-14 rounded-2xl flex items-center gap-2 border-slate-200 text-slate-600 hover:text-slate-900 bg-white shadow-sm px-5 ml-auto xl:ml-0"
             >
-              <RefreshCw className={`h-4 w-4 ${isFetching || refreshing ? "animate-spin" : ""}`} />
-              {isFetching || refreshing ? "Refreshing..." : "Refresh"}
+              <RefreshCw className={`h-4 w-4 ${isFetching || refreshing ? "animate-spin text-orange-500" : ""}`} />
+              <span>{isFetching || refreshing ? "Refreshing" : "Refresh"}</span>
             </Button>
           </div>
         </div>
 
-        <div className="mt-4 flex justify-between items-center text-sm text-gray-600">
-          <span>Showing {filteredStudents.length} of {data?.length || 0} members</span>
+        <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
+          <span className="text-base font-semibold text-slate-600">Filtered Members</span>
+          <span className="w-fit px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm">Showing {filteredStudents.length} of {data?.length || 0}</span>
         </div>
       </div>
 
       {filteredStudents.length === 0 ? (
-        <div className="text-center py-12">
-          <User className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">
+        <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-slate-300 mb-10">
+          <div className="flex justify-center mb-6">
+             <div className="p-4 bg-slate-50 rounded-full">
+               <User className="h-12 w-12 text-slate-300" />
+             </div>
+          </div>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">
             {data && data.length === 0 ? "No members found" : "No members match your criteria"}
           </h3>
-          <p className="text-gray-500">
+          <p className="text-slate-500 max-w-sm mx-auto">
             {data && data.length === 0
               ? "Start by adding new members to your gym"
               : "Try adjusting your search or filter criteria"}
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-          {filteredStudents.map((student) => (
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+          {filteredStudents.map((student: StudentData) => (
             <StudentCard
               key={student._id}
               id={student._id}
@@ -201,6 +209,9 @@ const Students = () => {
               membershipType={student.membershipType}
               status={student.status}
               subscriptionEndDate={String(student.subscriptionEndDate)}
+              phoneNumber={student.phoneNumber}
+              email={student.email}
+              fingerprintId={student.fingerprintId}
             />
           ))}
         </div>

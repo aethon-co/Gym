@@ -37,7 +37,7 @@ export const POST = async (req: NextRequest) => {
     member.updateStatus();
     await member.save();
 
-    if (member.status !== "Active") {
+    if (member.status !== "Active" && member.status !== "Expired") {
       return NextResponse.json(
         {
           access: false,

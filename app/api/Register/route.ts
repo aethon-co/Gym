@@ -1,4 +1,5 @@
 import { connectDb } from "@/db";
+import { MEMBERSHIP_PRICES } from "@/lib/pricing";
 import Member from "@/models/member";
 import Payment from "@/models/payments";
 import { NextRequest, NextResponse } from "next/server";
@@ -7,13 +8,6 @@ import jwt from "jsonwebtoken";
 const MEMBERSHIP_TYPES = ["Basic", "Premium", "Couple", "Student", "Custom"] as const;
 const VALID_DURATIONS = [1, 3, 6, 12] as const;
 const PAYMENT_METHODS = ["Cash", "UPI", "Card", "BankTransfer"] as const;
-
-const paymentAmounts = {
-  Basic: 1000,
-  Premium: 2000,
-  Couple: 3000,
-  Student: 500,
-};
 
 const parseFingerprintId = (value: unknown): number | undefined | null => {
   if (value === undefined || value === null || value === "") return undefined;
@@ -137,7 +131,7 @@ export async function POST(req: NextRequest) {
     const paymentAmount =
       membershipType === "Custom"
         ? customAmount
-        : paymentAmounts[membershipType as keyof typeof paymentAmounts];
+        : MEMBERSHIP_PRICES[membershipType as keyof typeof MEMBERSHIP_PRICES];
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + duration);
 
@@ -331,7 +325,7 @@ export async function PUT(req: NextRequest) {
     }
 
     if (updateData.membershipType && updateData.membershipType !== "Custom") {
-      updateData.paymentAmount = paymentAmounts[updateData.membershipType as keyof typeof paymentAmounts];
+      updateData.paymentAmount = MEMBERSHIP_PRICES[updateData.membershipType as keyof typeof MEMBERSHIP_PRICES];
       updateData.customAmount = undefined;
     }
 

@@ -227,16 +227,16 @@ export default function StudentIdPage() {
   const StatusIcon = statusConfig.icon;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-100 to-slate-50 py-10 px-6 sm:px-10">
-      <div className="max-w-5xl mx-auto space-y-8">
-        <div className="flex justify-between items-center">
-          <Button onClick={() => router.push("/home/students")} variant="ghost" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" /> Back
+    <div className="min-h-screen bg-slate-50 py-10 px-6 sm:px-10 flex flex-col items-center">
+      <div className="w-full max-w-6xl space-y-8 flex-1 flex flex-col">
+        <div className="flex justify-between items-center bg-white shadow-sm border border-slate-200/60 p-4 px-6 rounded-2xl">
+          <Button onClick={() => router.push("/home/students")} variant="ghost" className="flex items-center gap-2 text-slate-600 hover:text-slate-900">
+            <ArrowLeft className="h-5 w-5" /> Back
           </Button>
-          <div className="flex gap-2">
+          <div className="flex gap-3">
             <EditModal student={student} onSave={setStudent} />
             <RenewalModal student={student} onRenewalSuccess={() => fetchStudentData()} />
-            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="flex items-center gap-2">
+            <Button variant="destructive" onClick={handleDelete} disabled={isDeleting} className="flex items-center gap-2 shadow-sm">
               <Trash2 className="h-4 w-4" />
               {isDeleting ? "Deleting..." : "Delete"}
             </Button>
@@ -304,63 +304,135 @@ export default function StudentIdPage() {
           </div>
         )}
 
-        <div className="bg-white shadow-xl rounded-2xl border border-slate-200 p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h1 className="text-2xl font-semibold flex items-center gap-2">
-              {getMembershipIcon(student.membershipType)}
-              {student.name}
-            </h1>
-            <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${statusConfig.border} ${statusConfig.bg}`}>
-              <StatusIcon className={`h-4 w-4 ${statusConfig.color}`} />
-              <span className={`font-medium ${statusConfig.color}`}>{student.status}</span>
+        <div className="bg-white shadow-sm shadow-slate-200/50 rounded-3xl border border-slate-200/60 overflow-hidden shrink-0">
+          <div className="h-32 bg-gradient-to-r from-orange-500 to-red-600 relative">
+            <div className="absolute top-5 right-5 bg-white/20 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-full flex items-center gap-2 text-sm font-semibold shadow-sm">
+              <StatusIcon className="h-4 w-4" />
+              {student.status}
             </div>
           </div>
+          
+          <div className="px-8 sm:px-10 pb-10">
+            <div className="flex flex-col sm:flex-row items-center sm:items-end justify-between mb-8 -mt-12 relative z-10 gap-6">
+              <div className="flex flex-col sm:flex-row gap-6 items-center sm:items-end text-center sm:text-left">
+                <div className="w-24 h-24 rounded-2xl bg-white shadow-lg p-2 ring-1 ring-slate-100 flex-shrink-0">
+                  <div className="w-full h-full bg-slate-50 text-slate-400 rounded-xl flex items-center justify-center pointer-events-none">
+                    {getMembershipIcon(student.membershipType)}
+                  </div>
+                </div>
+                <div className="pb-1">
+                  <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">{student.name}</h1>
+                  <p className="text-slate-500 font-medium flex items-center justify-center sm:justify-start gap-1.5 mt-2 text-sm">
+                    <Crown className="w-4 h-4 text-emerald-500" />
+                    {student.membershipType} Member
+                  </p>
+                </div>
+              </div>
+              <div className="w-full sm:w-auto mt-2 sm:mt-0">
+                <div className="px-5 py-3 rounded-xl border bg-slate-50 border-slate-200 w-full flex justify-between sm:justify-center items-center gap-4">
+                  <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Fingerprint ID</span>
+                  <span className="text-lg font-black text-slate-800 bg-white px-3 py-1 rounded shadow-sm border border-slate-200 text-center min-w-[40px]">{student.fingerprintId ?? "None"}</span>
+                </div>
+              </div>
+            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-slate-700">
-            <div className="flex items-center gap-2"><Phone className="h-4 w-4 text-slate-500" />{student.phoneNumber || "N/A"}</div>
-            <div className="flex items-center gap-2"><Mail className="h-4 w-4 text-slate-500" />{student.email || "N/A"}</div>
-            <div className="flex items-center gap-2"><MapPin className="h-4 w-4 text-slate-500" />{student.address || "N/A"}</div>
-            <div className="flex items-center gap-2"><DollarSign className="h-4 w-4 text-slate-500" />₹{student.paymentAmount || "0"}</div>
-            <div className="flex items-center gap-2"><Calendar className="h-4 w-4 text-slate-500" />Start: {formatDate(student.subscriptionStartDate || "")}</div>
-            <div className="flex items-center gap-2"><Clock className="h-4 w-4 text-slate-500" />End: {formatDate(student.subscriptionEndDate)}</div>
-            <div className="flex items-center gap-2"><CalendarDays className="h-4 w-4 text-slate-500" />Days Remaining: {daysRemaining > 0 ? `${daysRemaining} days` : "Expired"}</div>
-            <div className="flex items-center gap-2"><CreditCard className="h-4 w-4 text-slate-500" />Membership: {student.membershipType}</div>
-            <div className="flex items-center gap-2"><Fingerprint className="h-4 w-4 text-slate-500" />Fingerprint ID: {student.fingerprintId ?? "Not assigned"}</div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+               <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-50/50 border border-slate-200/60 hover:bg-slate-50 transition-colors">
+                 <div className="p-3 bg-white shadow-sm rounded-xl text-blue-500 shrink-0"><Phone className="w-5 h-5"/></div>
+                 <div className="min-w-0 flex-1">
+                   <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Phone Number</p>
+                   <p className="text-base font-semibold text-slate-700 truncate">{student.phoneNumber || "N/A"}</p>
+                 </div>
+               </div>
+               
+               <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-50/50 border border-slate-200/60 hover:bg-slate-50 transition-colors">
+                 <div className="p-3 bg-white shadow-sm rounded-xl text-indigo-500 shrink-0"><Mail className="w-5 h-5"/></div>
+                 <div className="min-w-0 flex-1">
+                   <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Email Address</p>
+                   <p className="text-base font-semibold text-slate-700 truncate">{student.email || "N/A"}</p>
+                 </div>
+               </div>
+
+               <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-50/50 border border-slate-200/60 hover:bg-slate-50 transition-colors">
+                 <div className="p-3 bg-white shadow-sm rounded-xl text-rose-500 shrink-0"><MapPin className="w-5 h-5"/></div>
+                 <div className="min-w-0 flex-1">
+                   <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Address</p>
+                   <p className="text-base font-semibold text-slate-700">{student.address || "N/A"}</p>
+                 </div>
+               </div>
+
+               <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-50/50 border border-slate-200/60 hover:bg-slate-50 transition-colors">
+                 <div className="p-3 bg-white shadow-sm rounded-xl text-emerald-500 shrink-0"><DollarSign className="w-5 h-5"/></div>
+                 <div className="min-w-0 flex-1">
+                   <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Payment</p>
+                   <p className="text-base font-semibold text-slate-700">₹{student.paymentAmount || "0"}</p>
+                 </div>
+               </div>
+
+               <div className="flex items-start gap-4 p-5 rounded-2xl bg-slate-50/50 border border-slate-200/60 hover:bg-slate-50 transition-colors">
+                 <div className="p-3 bg-white shadow-sm rounded-xl text-amber-500 shrink-0"><Calendar className="w-5 h-5"/></div>
+                 <div className="min-w-0 flex-1">
+                   <p className="text-xs text-slate-400 font-bold uppercase tracking-wider mb-1">Timeline</p>
+                   <p className="text-base font-semibold text-slate-700 truncate">{formatDate(student.subscriptionStartDate || "")} - {formatDate(student.subscriptionEndDate)}</p>
+                 </div>
+               </div>
+
+               <div className={`flex items-start gap-4 p-5 rounded-2xl border transition-colors ${daysRemaining > 0 ? "bg-slate-50/50 border-slate-200/60" : "bg-red-50/70 border-red-200"}`}>
+                 <div className={`p-3 shadow-sm rounded-xl shrink-0 ${daysRemaining > 0 ? "bg-white text-teal-500" : "bg-red-100 text-red-600"}`}>
+                   <CalendarDays className="w-5 h-5"/>
+                 </div>
+                 <div className="min-w-0 flex-1">
+                   <p className={`text-xs font-bold uppercase tracking-wider mb-1 ${daysRemaining > 0 ? "text-slate-400" : "text-red-400"}`}>Time Remaining</p>
+                   <p className={`text-base font-bold ${daysRemaining > 0 ? "text-slate-800" : "text-red-700"}`}>{daysRemaining > 0 ? `${daysRemaining} days left` : "Expired"}</p>
+                 </div>
+               </div>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white shadow-xl rounded-2xl border border-slate-200 p-6">
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-            <Receipt className="h-5 w-5 text-blue-500" />
-            Payment History
-          </h2>
+        <div className="bg-white shadow-sm shadow-slate-200/50 rounded-3xl border border-slate-200/60 p-6 sm:p-10 flex-1 flex flex-col mb-10 overflow-hidden">
+          <div className="flex items-center gap-4 mb-6 shrink-0">
+            <div className="p-2.5 bg-orange-50 text-orange-600 rounded-xl">
+              <Receipt className="h-6 w-6" />
+            </div>
+            <h2 className="text-xl font-bold text-slate-800">Payment History</h2>
+          </div>
           {payments.length > 0 ? (
-            <div className="overflow-x-auto rounded-lg border">
-              <table className="min-w-full text-sm">
-                <thead className="bg-slate-50 text-slate-700">
+            <div className="overflow-x-auto w-full min-h-0 relative rounded-2xl border border-slate-200">
+              <table className="min-w-full text-sm text-left">
+                <thead className="bg-slate-50/90 text-slate-500 font-bold uppercase tracking-wider text-xs sticky top-0 z-20 backdrop-blur-md shadow-sm">
                   <tr>
-                    <th className="p-3 text-left">Date & Time</th>
-                    <th className="p-3 text-left">Amount</th>
-                    <th className="p-3 text-left">Duration</th>
-                    <th className="p-3 text-left">Method</th>
-                    <th className="p-3 text-left">Notes</th>
+                     <th className="px-6 py-4">Date & Time</th>
+                     <th className="px-6 py-4">Amount</th>
+                     <th className="px-6 py-4">Duration</th>
+                     <th className="px-6 py-4">Method</th>
+                     <th className="px-6 py-4 w-full">Notes</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="divide-y divide-slate-100">
                   {payments.map((payment) => (
-                    <tr key={payment._id} className="border-t hover:bg-slate-50">
-                      <td className="p-3">{formatDateTime(payment.createdAt)}</td>
-                      <td className="p-3">₹{payment.amount}</td>
-                      <td className="p-3">{payment.duration || 1} month(s)</td>
-                      <td className="p-3">{payment.paymentMethod}</td>
-                      <td className="p-3">{payment.notes || "—"}</td>
+                    <tr key={payment._id} className="hover:bg-slate-50/80 transition-colors group">
+                      <td className="px-6 py-4 text-slate-700 font-medium whitespace-nowrap">{formatDateTime(payment.createdAt)}</td>
+                      <td className="px-6 py-4 text-slate-900 font-bold whitespace-nowrap">₹{payment.amount}</td>
+                      <td className="px-6 py-4 text-slate-600 whitespace-nowrap">{payment.duration || 1} month(s)</td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex px-3 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-600 border border-slate-200">
+                          {payment.paymentMethod}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-500 max-w-sm truncate" title={payment.notes || "—"}>
+                        {payment.notes || "—"}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           ) : (
-            <div className="text-slate-500 text-center py-4">No payment history found</div>
+            <div className="flex flex-col items-center justify-center py-12 text-center bg-slate-50 rounded-2xl border border-dashed border-slate-300 flex-1">
+               <Receipt className="h-12 w-12 text-slate-300 mb-4" />
+               <p className="text-slate-600 font-bold text-lg">No payments yet</p>
+            </div>
           )}
         </div>
       </div>

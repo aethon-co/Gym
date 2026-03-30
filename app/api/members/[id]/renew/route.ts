@@ -45,10 +45,14 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
             ? membershipType
             : member.membershipType;
 
-        member.paymentAmount = amount;
         member.subscriptionEndDate = newEndDate;
         member.status = "Active";
         member.membershipType = targetMembershipType;
+        member.duration = renewalMonths;
+        member.paymentAmount = amount;
+        if (targetMembershipType === "Custom") {
+            member.customAmount = renewalMonths > 0 ? amount / renewalMonths : amount;
+        }
         await member.save();
 
         if (member.coupleGroupId) {
@@ -62,6 +66,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
                 subscriptionEndDate: newEndDate,
                 status: "Active",
                 membershipType: "Couple",
+                duration: renewalMonths,
                 paymentAmount: amount,
               },
             }
@@ -85,6 +90,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
                 name: member.name,
                 membershipType: member.membershipType,
                 status: member.status,
+                duration: member.duration,
                 subscriptionStartDate: member.subscriptionStartDate,
                 subscriptionEndDate: member.subscriptionEndDate,
                 paymentAmount: member.paymentAmount

@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
 
     member.updateStatus();
     await member.save();
-    if (member.status !== "Active") {
+    if (member.status !== "Active" && member.status !== "Expired") {
       return NextResponse.json({ error: `Cannot mark attendance. Member is ${member.status}` }, { status: 403 });
     }
 

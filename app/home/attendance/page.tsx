@@ -134,19 +134,21 @@ const Attendance = () => {
   }, [searchTerm]);
 
   return (
-    <div className="p-6 max-w-7xl mx-auto h-screen overflow-y-auto bg-gray-50">
-      <div className="mb-8 flex flex-col items-center">
-        <div className="flex items-center justify-center w-14 h-14 bg-black rounded-2xl shadow-lg mb-3">
-          <Users className="w-7 h-7 text-white" />
+    <div className="min-h-screen p-6 sm:p-10 max-w-7xl mx-auto overflow-y-auto bg-slate-50">
+      <div className="mb-10 flex flex-col items-center">
+        <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-orange-500 to-red-500 rounded-3xl shadow-lg shadow-orange-500/30 mb-5">
+          <Users className="w-8 h-8 text-white" />
         </div>
-        <h1 className="text-3xl font-bold text-slate-800 text-center">Attendance History</h1>
+        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight text-center">Attendance History</h1>
+        <p className="text-slate-500 font-medium mt-2">Track daily check-ins, member visits, and history in one place.</p>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-        <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center">
-          <div className="relative flex-1 min-w-[300px]">
+      <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 p-6 sm:p-8 mb-8">
+        <div className="flex flex-col xl:flex-row xl:items-center gap-4">
+          <div className="relative w-full xl:flex-1">
+            <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <Input
-              className="pr-4 py-3 rounded-full border-2 border-gray-200 focus:border-blue-500 transition-colors w-full"
+              className="h-14 pl-12 pr-4 rounded-2xl border-slate-200 bg-slate-50/60 focus:border-orange-500 focus:ring-orange-500/20 transition-all w-full text-base shadow-sm"
               type="text"
               value={searchTerm}
               placeholder="Search by name, phone, or fingerprint..."
@@ -154,92 +156,123 @@ const Attendance = () => {
             />
           </div>
 
-          <div className="flex gap-3 items-center flex-wrap">
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">View:</span>
+          <div className="flex flex-wrap xl:flex-nowrap xl:items-center gap-3 xl:w-auto">
+            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-2xl shadow-sm min-w-[170px] xl:flex-shrink-0">
+              <div className="flex items-center gap-2 pl-4 pr-3 py-3 border-r border-slate-200/60">
+                <Filter className="h-4 w-4 text-slate-400" />
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest hidden sm:inline">View</span>
+              </div>
+              <select
+                value={view}
+                onChange={(e) => setView(e.target.value as ViewType)}
+                className="px-4 py-3 bg-transparent text-sm font-semibold text-slate-700 outline-none focus:ring-0 border-none cursor-pointer min-w-[88px]"
+              >
+                <option value="day">Day</option>
+                <option value="week">Week</option>
+                <option value="month">Month</option>
+                <option value="range">Range</option>
+              </select>
             </div>
-            <select
-              value={view}
-              onChange={(e) => setView(e.target.value as ViewType)}
-              className="px-3 py-2 rounded-lg border border-gray-300 text-sm"
-            >
-              <option value="day">Day</option>
-              <option value="week">Week</option>
-              <option value="month">Month</option>
-              <option value="range">Custom Range</option>
-            </select>
 
-            <div className="relative">
-              <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="pl-10" />
+            <div className="relative group min-w-[180px] xl:flex-shrink-0">
+              <Calendar className="absolute left-4 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400 group-hover:text-orange-500 transition-colors" />
+              <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-14 pl-11 rounded-2xl border-slate-200 shadow-sm cursor-pointer bg-white" />
             </div>
 
             {view === "range" && (
               <>
-                <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                <Input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className="h-14 min-w-[180px] rounded-2xl border-slate-200 shadow-sm cursor-pointer bg-white xl:flex-shrink-0" />
+                <Input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className="h-14 min-w-[180px] rounded-2xl border-slate-200 shadow-sm cursor-pointer bg-white xl:flex-shrink-0" />
               </>
             )}
 
-            <Button onClick={handleRefresh} disabled={refreshing || loading} variant="outline" size="sm" className="flex items-center gap-2">
-              <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin" : ""}`} />
-              {refreshing ? "Refreshing..." : "Refresh"}
-            </Button>
+            <div className="flex gap-3 w-full sm:w-auto xl:flex-shrink-0">
+              <Button onClick={handleRefresh} disabled={refreshing || loading} variant="outline" className="h-14 rounded-2xl flex-1 sm:flex-none items-center gap-2 border-slate-200 text-slate-600 hover:text-slate-900 bg-white shadow-sm px-5">
+                <RefreshCw className={`h-4 w-4 ${refreshing ? "animate-spin text-orange-500" : ""}`} />
+                <span>{refreshing ? "Refreshing" : "Refresh"}</span>
+              </Button>
 
-            <Button onClick={exportToExcel} disabled={attendanceData.length === 0} className="flex items-center gap-2 bg-green-600 hover:bg-green-700" size="sm">
-              <Download className="h-4 w-4" />
-              Export Excel
-            </Button>
+              <Button onClick={exportToExcel} disabled={attendanceData.length === 0} className="h-14 rounded-2xl flex-1 sm:flex-none items-center gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-500/20 text-white transition-all px-5">
+                <Download className="h-4 w-4" />
+                <span>Export</span>
+              </Button>
+            </div>
           </div>
         </div>
 
-        <div className="mt-4 flex justify-between items-center text-sm text-gray-600">
-          <span>{heading}</span>
-          <span className="font-medium">Total: {attendanceData.length}</span>
+        <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col sm:flex-row gap-3 sm:justify-between sm:items-center">
+          <span className="text-base font-semibold text-slate-600">{heading}</span>
+          <span className="w-fit px-4 py-2 bg-slate-100 text-slate-700 font-bold rounded-xl text-sm">Total: {attendanceData.length}</span>
         </div>
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-12">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mr-3"></div>
-          <span className="text-gray-600">Loading attendance...</span>
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-orange-500 mr-4"></div>
+          <span className="text-slate-500 font-medium">Loading attendance records...</span>
         </div>
       ) : attendanceData.length === 0 ? (
-        <div className="text-center py-12">
-          <Users className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">No attendance records</h3>
-          <p className="text-gray-500">No check-ins found for the selected filter.</p>
+        <div className="text-center py-24 bg-white rounded-3xl border border-dashed border-slate-300 mb-10">
+          <div className="flex justify-center mb-6">
+             <div className="p-4 bg-slate-50 rounded-full">
+               <Users className="h-12 w-12 text-slate-300" />
+             </div>
+          </div>
+          <h3 className="text-xl font-bold text-slate-800 mb-2">No attendance records found</h3>
+          <p className="text-slate-500 max-w-sm mx-auto">We couldn't find any check-ins matching your current filters. Try adjusting the date or search term.</p>
         </div>
       ) : (
-        <div className="bg-white rounded-lg shadow-sm border overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-sm shadow-slate-200/50 border border-slate-200/60 overflow-hidden mb-10">
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
+            <table className="min-w-full divide-y divide-slate-100">
+              <thead className="bg-slate-50/80">
                 <tr>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Member</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Fingerprint</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Membership</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Check-in Time</th>
+                  <th className="px-8 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200">Member Name</th>
+                  <th className="px-8 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200">Fingerprint</th>
+                  <th className="px-8 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200">Membership</th>
+                  <th className="px-8 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200">Status</th>
+                  <th className="px-8 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200">Date</th>
+                  <th className="px-8 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200">Check-in Time</th>
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {attendanceData.map((record, index) => (
-                  <tr key={record._id} className={index % 2 === 0 ? "bg-white" : "bg-gray-50"}>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{record.memberId?.name || "Unknown Member"}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{record.memberId?.fingerprintId ?? "N/A"}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{record.memberId?.membershipType || "N/A"}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{record.memberId?.status || "N/A"}</td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(record.date).toLocaleDateString()}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      {new Date(record.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
-                    </td>
-                  </tr>
-                ))}
+              <tbody className="bg-white divide-y divide-slate-100">
+                {attendanceData.map((record, index) => {
+                  const isExpired = record.memberId?.status === "Expired";
+                  const rowClass = isExpired
+                    ? "bg-red-50/30 hover:bg-red-50 transition-colors group"
+                    : "hover:bg-slate-50/80 transition-colors group";
+
+                  const textClassPrimary = isExpired ? "text-red-700 font-extrabold" : "text-slate-900 font-bold";
+                  const textClassSecondary = isExpired ? "text-red-600 font-semibold" : "text-slate-600 font-medium";
+
+                  return (
+                    <tr key={record._id} className={rowClass}>
+                      <td className={`px-8 py-5 whitespace-nowrap text-sm ${textClassPrimary}`}>
+                        {record.memberId?.name || "Unknown Member"}
+                      </td>
+                      <td className={`px-8 py-5 whitespace-nowrap text-sm ${textClassSecondary}`}>
+                        {record.memberId?.fingerprintId ?? "N/A"}
+                      </td>
+                      <td className={`px-8 py-5 whitespace-nowrap text-sm ${textClassSecondary}`}>
+                        <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-bold ${isExpired ? 'bg-red-100/50' : 'bg-slate-100'}`}>
+                          {record.memberId?.membershipType || "N/A"}
+                        </span>
+                      </td>
+                      <td className={`px-8 py-5 whitespace-nowrap text-sm ${textClassSecondary}`}>
+                        <div className="flex items-center">
+                          <span className={`h-2 w-2 rounded-full mr-2 ${isExpired ? 'bg-red-500' : 'bg-emerald-500'}`}></span>
+                          {record.memberId?.status || "N/A"}
+                        </div>
+                      </td>
+                      <td className={`px-8 py-5 whitespace-nowrap text-sm ${textClassSecondary}`}>
+                        {new Date(record.date).toLocaleDateString()}
+                      </td>
+                      <td className={`px-8 py-5 whitespace-nowrap text-sm ${textClassSecondary}`}>
+                        {new Date(record.date).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true })}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

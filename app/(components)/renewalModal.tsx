@@ -32,6 +32,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import { toast } from "sonner";
+import { MEMBERSHIP_PRICES } from "@/lib/pricing";
 import { StudentData } from "@/lib/types";
 
 interface RenewalModalProps {
@@ -40,10 +41,7 @@ interface RenewalModalProps {
 }
 
 const membershipPrices: Record<string, number> = {
-  Basic: 1500,
-  Premium: 3000,
-  Couple: 4500,
-  Student: 1200,
+  ...MEMBERSHIP_PRICES,
   Custom: 1,
 };
 
@@ -57,12 +55,18 @@ export default function RenewalModal({
   student,
   onRenewalSuccess,
 }: RenewalModalProps) {
+  const customBaseAmount = student.membershipType === "Custom"
+    ? Number(student.customAmount || student.paymentAmount || 0)
+    : 0;
+
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     membershipType: student.membershipType,
     renewalMonths: 1,
-    paymentAmount: membershipPrices[student.membershipType] || 1500,
+    paymentAmount: student.membershipType === "Custom"
+      ? customBaseAmount
+      : membershipPrices[student.membershipType] || membershipPrices.Basic,
     paymentMethod: "Cash",
   });
 
@@ -75,7 +79,9 @@ export default function RenewalModal({
         | "Couple"
         | "Student"
         | "Custom",
-      paymentAmount: (membershipPrices[type] ?? 0) * prev.renewalMonths,
+      paymentAmount: type === "Custom"
+        ? customBaseAmount * prev.renewalMonths
+        : (membershipPrices[type] ?? 0) * prev.renewalMonths,
     }));
   };
 
@@ -83,7 +89,9 @@ export default function RenewalModal({
     setFormData((prev) => ({
       ...prev,
       renewalMonths: months,
-      paymentAmount: membershipPrices[prev.membershipType] * months,
+      paymentAmount: prev.membershipType === "Custom"
+        ? customBaseAmount * months
+        : membershipPrices[prev.membershipType] * months,
     }));
   };
 

@@ -6,16 +6,18 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import {
+  LayoutDashboard,
   Users,
   ClipboardCheck,
   UserPlus,
   Dumbbell,
-  Calendar,
   TrendingUp,
   Settings,
-  Bell,
+  LogOut,
+  Wallet,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 type NavItemsType = {
   href: string;
@@ -26,6 +28,7 @@ type NavItemsType = {
 };
 
 const Sidebar = () => {
+  const router = useRouter();
   const [count, setCount] = useState<number | null>(null);
   useEffect(() => {
     const fetchMemberCount = async () => {
@@ -41,6 +44,12 @@ const Sidebar = () => {
   }, []);
 
   const mainNavItems: NavItemsType[] = [
+    {
+      href: "./frontdesk",
+      label: "Front Desk",
+      icon: LayoutDashboard,
+      color: "text-orange-600",
+    },
     {
       href: "./students",
       label: "Members",
@@ -62,12 +71,26 @@ const Sidebar = () => {
     },
   ];
 
+  const handleLogout = () => {
+    localStorage.removeItem("adminToken");
+    localStorage.removeItem("token");
+    sessionStorage.removeItem("adminToken");
+    router.push("/");
+    router.refresh();
+  };
+
   const secondaryNavItems: NavItemsType[] = [
     {
       href: "./analytics",
       label: "Analytics",
       icon: TrendingUp,
       color: "text-cyan-600",
+    },
+    {
+      href: "./expenses",
+      label: "Expenses",
+      icon: Wallet,
+      color: "text-emerald-600",
     },
     {
       href: "./settings",
@@ -183,6 +206,17 @@ const Sidebar = () => {
           </div>
         </div>
       </ScrollArea>
+
+      <div className="border-t border-slate-200 p-3">
+        <Button
+          variant="ghost"
+          onClick={handleLogout}
+          className="w-full justify-start h-10 px-3 font-medium hover:bg-red-50 hover:text-red-700 transition-all"
+        >
+          <LogOut className="h-4 w-4 mr-3" />
+          Logout
+        </Button>
+      </div>
     </div>
   );
 };

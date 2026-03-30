@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -30,6 +30,7 @@ import {
   Target,
   Activity,
   Loader2,
+  RefreshCw
 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
@@ -40,17 +41,21 @@ type PlanDistribution = { name: string; value: number; count: number };
 type AnalyticsPayload = {
   summary: {
     totalRevenue: number;
+    totalExpenses: number;
+    totalProfit: number;
+    currentMonthProfit: number;
     totalMembers: number;
     activeMembers: number;
     avgRevenuePerPeriod: number;
     growthRate: number;
   };
   monthly: MonthlyData[];
+  expenseMonthly: { month: string; expenses: number; profit: number }[];
   yearly: YearlyData[];
   planDistribution: PlanDistribution[];
 };
 
-const chartColors = ["#111827", "#374151", "#6B7280", "#9CA3AF", "#D1D5DB"];
+const chartColors = ["#f97316", "#ef4444", "#8b5cf6", "#3b82f6", "#10b981"];
 
 const Analytics = () => {
   const [viewMode, setViewMode] = useState<"monthly" | "yearly">("monthly");
@@ -58,10 +63,17 @@ const Analytics = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [data, setData] = useState<AnalyticsPayload | null>(null);
 
-  const fetchAnalytics = async () => {
+  const fetchAnalytics = useCallback(async () => {
     setIsLoading(true);
     try {
       const response = await fetch("/api/analytics", { cache: "no-store" });
+
+      // Ensure we handle non-JSON error responses gracefully
+      const contentType = response.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+        throw new Error("Server returned a non-JSON response.");
+      }
+
       const result = await response.json();
       if (!response.ok) {
         throw new Error(result.error || "Failed to load analytics");
@@ -72,11 +84,11 @@ const Analytics = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchAnalytics();
-  }, []);
+  }, [fetchAnalytics]);
 
   const currentData = useMemo<(MonthlyData | YearlyData)[]>(() => {
     if (!data) return [];
@@ -119,14 +131,20 @@ const Analytics = () => {
 
   if (isLoading && !data) {
     return (
-      <div className="h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-slate-700" />
+      <div className="h-screen flex items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-10 w-10 animate-spin text-orange-500" />
+          <p className="text-slate-500 font-medium">Loading Insights...</p>
+        </div>
       </div>
     );
   }
 
   const summary = data?.summary ?? {
     totalRevenue: 0,
+    totalExpenses: 0,
+    totalProfit: 0,
+    currentMonthProfit: 0,
     totalMembers: 0,
     activeMembers: 0,
     avgRevenuePerPeriod: 0,
@@ -134,213 +152,296 @@ const Analytics = () => {
   };
 
   return (
-    <div className="text-black p-6 pt-0">
-      <Toaster />
-      <div className="max-w-7xl mx-auto space-y-6">
-        <Card className="bg-white border-2 border-gray-200 shadow-2xl">
-          <CardHeader className="border-b border-gray-100 pb-6">
-            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-              <div>
-                <CardTitle className="text-3xl flex items-center gap-3 text-black">
-                  <BarChart3 className="w-8 h-8" />
-                  Analytics Dashboard
-                </CardTitle>
-                <CardDescription className="text-gray-600 text-base mt-2">
-                  Live revenue, member growth, and plan distribution
-                </CardDescription>
+    <div className="min-h-screen p-6 sm:p-10 max-w-7xl mx-auto bg-slate-50">
+      <Toaster position="top-right" />
+
+      {/* Header */}
+      <div className="mb-10 flex flex-col items-center">
+        <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-orange-500 to-red-500 rounded-3xl shadow-lg shadow-orange-500/30 mb-5">
+          <BarChart3 className="w-8 h-8 text-white" />
+        </div>
+        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight text-center">Analytics Dashboard</h1>
+        <p className="text-slate-500 font-medium mt-2 text-center max-w-2xl">Live revenue, member growth, and plan distribution.</p>
+      </div>
+
+      {/* Toolbar */}
+      <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 p-6 sm:p-8 mb-8">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex gap-4 items-center flex-wrap w-full">
+            <div className="flex items-center bg-slate-50 border border-slate-200 rounded-2xl shadow-sm">
+              <div className="flex items-center gap-2 pl-4 pr-3 py-1.5 border-r border-slate-200/60">
+                <Calendar className="h-4 w-4 text-slate-400" />
+                <span className="text-xs font-bold text-slate-500 uppercase tracking-widest hidden sm:inline">View</span>
               </div>
-              <div className="flex flex-col sm:flex-row gap-3">
-                <Select value={viewMode} onValueChange={(value: "monthly" | "yearly") => setViewMode(value)}>
-                  <SelectTrigger className="w-40 h-12 border-2 border-gray-300 focus:border-black">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent className="bg-white border-2 border-gray-200">
-                    <SelectItem value="monthly">Monthly View</SelectItem>
-                    <SelectItem value="yearly">Yearly View</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button onClick={fetchAnalytics} variant="outline" className="h-12 px-6">
-                  Refresh
-                </Button>
-                <Button
-                  onClick={handleExportCSV}
-                  disabled={isExporting || !currentData.length}
-                  className="h-12 px-6 bg-black text-white hover:bg-gray-800 border-2 border-black font-semibold"
-                >
-                  <Download className="w-4 h-4 mr-2" />
-                  {isExporting ? "Exporting..." : "Export CSV"}
-                </Button>
-              </div>
+              <Select value={viewMode} onValueChange={(value: "monthly" | "yearly") => setViewMode(value)}>
+                <SelectTrigger className="px-4 py-2 bg-transparent text-sm font-semibold text-slate-700 outline-none focus:ring-0 border-none cursor-pointer shadow-none">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl border-slate-200">
+                  <SelectItem value="monthly">Monthly View</SelectItem>
+                  <SelectItem value="yearly">Yearly View</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </CardHeader>
-        </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="bg-white border-2 border-gray-200 shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 font-medium">Total Revenue</p>
-                  <p className="text-3xl font-bold text-black">₹{summary.totalRevenue.toLocaleString()}</p>
-                  <Badge className="mt-2 bg-green-100 text-green-800 border-green-200">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    {summary.growthRate.toFixed(2)}%
-                  </Badge>
-                </div>
-                <DollarSign className="w-12 h-12 text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white border-2 border-gray-200 shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 font-medium">Total Members</p>
-                  <p className="text-3xl font-bold text-black">{summary.totalMembers.toLocaleString()}</p>
-                  <Badge className="mt-2 bg-blue-100 text-blue-800 border-blue-200">
-                    <Users className="w-3 h-3 mr-1" />
-                    {summary.activeMembers} active
-                  </Badge>
-                </div>
-                <Users className="w-12 h-12 text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white border-2 border-gray-200 shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 font-medium">Avg Revenue</p>
-                  <p className="text-3xl font-bold text-black">₹{summary.avgRevenuePerPeriod.toLocaleString()}</p>
-                  <Badge className="mt-2 bg-purple-100 text-purple-800 border-purple-200">
-                    <Target className="w-3 h-3 mr-1" />
-                    Per Period
-                  </Badge>
-                </div>
-                <Activity className="w-12 h-12 text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white border-2 border-gray-200 shadow-lg">
-            <CardContent className="p-6">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-gray-600 font-medium">Growth Rate</p>
-                  <p className="text-3xl font-bold text-black">{summary.growthRate.toFixed(2)}%</p>
-                  <Badge className="mt-2 bg-yellow-100 text-yellow-800 border-yellow-200">
-                    <TrendingUp className="w-3 h-3 mr-1" />
-                    MoM
-                  </Badge>
-                </div>
-                <BarChart3 className="w-12 h-12 text-gray-400" />
-              </div>
-            </CardContent>
-          </Card>
+            <div className="flex gap-3 ml-auto">
+              <Button
+                onClick={fetchAnalytics}
+                disabled={isLoading}
+                variant="outline"
+                className="h-11 rounded-xl flex items-center gap-2 border-slate-200 text-slate-600 hover:text-slate-900 bg-white shadow-sm"
+              >
+                <RefreshCw className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`} />
+                Refresh
+              </Button>
+              <Button
+                onClick={handleExportCSV}
+                disabled={isExporting || !currentData.length}
+                className="h-11 rounded-xl flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-500/20 text-white transition-all"
+              >
+                <Download className="w-4 h-4" />
+                {isExporting ? "Exporting..." : "Export CSV"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        {/* Total Revenue */}
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 p-6 relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 text-slate-100/50 group-hover:text-orange-50 transition-colors pointer-events-none">
+            <DollarSign className="w-32 h-32" />
+          </div>
+          <div className="relative">
+            <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-2">Total Revenue</p>
+            <p className="text-4xl font-extrabold text-slate-900">₹{summary.totalRevenue.toLocaleString()}</p>
+            <div className="mt-4 flex items-center">
+              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200/60 font-bold px-2 py-1">
+                <TrendingUp className="w-3.5 h-3.5 mr-1.5" />
+                {summary.growthRate.toFixed(1)}%
+              </Badge>
+            </div>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-white border-2 border-gray-200 shadow-lg">
-            <CardHeader className="border-b border-gray-100">
-              <CardTitle className="text-xl flex items-center gap-2 text-black">
+        {/* Total Expenses */}
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 p-6 relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 text-slate-100/50 group-hover:text-blue-50 transition-colors pointer-events-none">
+            <Users className="w-32 h-32" />
+          </div>
+          <div className="relative">
+            <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-2">Total Expenses</p>
+            <p className="text-4xl font-extrabold text-slate-900">₹{summary.totalExpenses.toLocaleString()}</p>
+            <div className="mt-4 flex items-center">
+              <Badge className="bg-rose-50 text-rose-700 border-rose-200/60 font-bold px-2 py-1">
+                <DollarSign className="w-3.5 h-3.5 mr-1.5" />
+                Operating Costs
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        {/* Net Profit */}
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 p-6 relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 text-slate-100/50 group-hover:text-purple-50 transition-colors pointer-events-none">
+            <Target className="w-32 h-32" />
+          </div>
+          <div className="relative">
+            <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-2">Net Profit</p>
+            <p className="text-4xl font-extrabold text-slate-900">₹{summary.totalProfit.toLocaleString()}</p>
+            <div className="mt-4 flex items-center">
+              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200/60 font-bold px-2 py-1">
+                <Activity className="w-3.5 h-3.5 mr-1.5" />
+                After Expenses
+              </Badge>
+            </div>
+          </div>
+        </div>
+
+        {/* Total Members */}
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 p-6 relative overflow-hidden group">
+          <div className="absolute -right-6 -top-6 text-slate-100/50 group-hover:text-amber-50 transition-colors pointer-events-none">
+            <BarChart3 className="w-32 h-32" />
+          </div>
+          <div className="relative">
+            <p className="text-slate-500 font-bold text-sm uppercase tracking-widest mb-2">Total Members</p>
+            <p className="text-4xl font-extrabold text-slate-900">{summary.totalMembers.toLocaleString()}</p>
+            <div className="mt-4 flex items-center">
+              <Badge className="bg-blue-50 text-blue-700 border-blue-200/60 font-bold px-2 py-1">
+                <Users className="w-3.5 h-3.5 mr-1.5" />
+                {summary.activeMembers} Active
+              </Badge>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+          <div className="border-b border-slate-100 p-6">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3">
+              <div className="p-2.5 bg-rose-50 text-rose-600 rounded-xl">
+                <DollarSign className="w-5 h-5" />
+              </div>
+              Expenses vs Profit
+            </h2>
+          </div>
+          <div className="p-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={data?.expenseMonthly || []}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey="month" tick={{ fill: "#64748b", fontSize: 12, fontWeight: 600 }} axisLine={false} tickLine={false} dy={10} />
+                <YAxis tick={{ fill: "#64748b", fontSize: 12, fontWeight: 600 }} tickFormatter={(value) => `₹${(Number(value) / 1000).toFixed(0)}k`} axisLine={false} tickLine={false} dx={-10} />
+                <Tooltip contentStyle={{ borderRadius: "12px", border: "1px solid #e2e8f0", boxShadow: "0 4px 6px -1px rgb(0 0 0 / 0.1)" }} />
+                <Bar dataKey="expenses" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={24} />
+                <Bar dataKey="profit" fill="#10b981" radius={[4, 4, 0, 0]} barSize={24} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+          <div className="border-b border-slate-100 p-6">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3">
+              <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
+                <TrendingUp className="w-5 h-5" />
+              </div>
+              Profit Snapshot
+            </h2>
+          </div>
+          <div className="p-6 grid grid-cols-1 gap-4">
+            <div className="rounded-2xl border border-emerald-100 bg-emerald-50 p-5">
+              <p className="text-sm font-semibold text-emerald-800">Current Month Profit</p>
+              <p className="text-3xl font-extrabold text-emerald-950 mt-1">₹{summary.currentMonthProfit.toLocaleString()}</p>
+            </div>
+            <div className="rounded-2xl border border-slate-200 bg-slate-50 p-5">
+              <p className="text-sm font-semibold text-slate-700">Average Revenue Per Period</p>
+              <p className="text-3xl font-extrabold text-slate-900 mt-1">₹{summary.avgRevenuePerPeriod.toLocaleString()}</p>
+            </div>
+            <div className="rounded-2xl border border-amber-100 bg-amber-50 p-5">
+              <p className="text-sm font-semibold text-amber-800">Growth Rate</p>
+              <p className="text-3xl font-extrabold text-amber-950 mt-1">{summary.growthRate.toFixed(2)}%</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Main Charts Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+          <div className="border-b border-slate-100 p-6">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3">
+              <div className="p-2.5 bg-orange-50 text-orange-600 rounded-xl">
                 <BarChart3 className="w-5 h-5" />
-                {viewMode === "monthly" ? "Monthly" : "Yearly"} Revenue Trends
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <BarChart data={currentData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey={viewMode === "monthly" ? "month" : "year"} tick={{ fill: "#374151", fontSize: 12 }} />
-                  <YAxis tick={{ fill: "#374151", fontSize: 12 }} tickFormatter={(value) => `₹${(Number(value) / 1000).toFixed(0)}k`} />
-                  <Tooltip formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, "Revenue"]} />
-                  <Bar dataKey="revenue" fill="#000000" radius={[4, 4, 0, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-          <Card className="bg-white border-2 border-gray-200 shadow-lg">
-            <CardHeader className="border-b border-gray-100">
-              <CardTitle className="text-xl flex items-center gap-2 text-black">
-                <Users className="w-5 h-5" />
-                Member Growth Trend
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={currentData}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey={viewMode === "monthly" ? "month" : "year"} tick={{ fill: "#374151", fontSize: 12 }} />
-                  <YAxis tick={{ fill: "#374151", fontSize: 12 }} />
-                  <Tooltip formatter={(value: any) => [Number(value), "Members"]} />
-                  <Line type="monotone" dataKey="members" stroke="#000000" strokeWidth={3} dot={{ fill: "#000000", strokeWidth: 2, r: 5 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+              </div>
+              {viewMode === "monthly" ? "Monthly" : "Yearly"} Revenue Trends
+            </h2>
+          </div>
+          <div className="p-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={currentData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey={viewMode === "monthly" ? "month" : "year"} tick={{ fill: "#64748b", fontSize: 12, fontWeight: 600 }} axisLine={false} tickLine={false} dy={10} />
+                <YAxis tick={{ fill: "#64748b", fontSize: 12, fontWeight: 600 }} tickFormatter={(value) => `₹${(Number(value) / 1000).toFixed(0)}k`} axisLine={false} tickLine={false} dx={-10} />
+                <Tooltip formatter={(value: any) => [`₹${Number(value).toLocaleString()}`, "Revenue"]} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} cursor={{ fill: '#f8fafc' }} />
+                <Bar dataKey="revenue" fill="#f97316" radius={[4, 4, 0, 0]} barSize={40} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card className="bg-white border-2 border-gray-200 shadow-lg">
-            <CardHeader className="border-b border-gray-100">
-              <CardTitle className="text-xl flex items-center gap-2 text-black">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+          <div className="border-b border-slate-100 p-6">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3">
+              <div className="p-2.5 bg-blue-50 text-blue-600 rounded-xl">
+                <Users className="w-5 h-5" />
+              </div>
+              Member Growth Trend
+            </h2>
+          </div>
+          <div className="p-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={currentData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" vertical={false} />
+                <XAxis dataKey={viewMode === "monthly" ? "month" : "year"} tick={{ fill: "#64748b", fontSize: 12, fontWeight: 600 }} axisLine={false} tickLine={false} dy={10} />
+                <YAxis tick={{ fill: "#64748b", fontSize: 12, fontWeight: 600 }} axisLine={false} tickLine={false} dx={-10} />
+                <Tooltip formatter={(value: any) => [Number(value), "Members"]} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+                <Line type="monotone" dataKey="members" stroke="#3b82f6" strokeWidth={4} dot={{ fill: "#ffffff", stroke: "#3b82f6", strokeWidth: 3, r: 6 }} activeDot={{ r: 8, fill: "#3b82f6" }} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      {/* Distribution & Table Row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+          <div className="border-b border-slate-100 p-6">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3">
+              <div className="p-2.5 bg-purple-50 text-purple-600 rounded-xl">
                 <PieChartIcon className="w-5 h-5" />
-                Membership Plan Distribution
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie data={data?.planDistribution || []} cx="50%" cy="50%" innerRadius={60} outerRadius={120} paddingAngle={5} dataKey="value">
-                    {(data?.planDistribution || []).map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip formatter={(value: any) => [`${value}%`, "Share"]} />
-                </PieChart>
-              </ResponsiveContainer>
-              <div className="flex flex-wrap justify-center gap-4 mt-4">
-                {(data?.planDistribution || []).map((entry, index) => (
-                  <div key={index} className="flex items-center gap-2">
-                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: chartColors[index % chartColors.length] }} />
-                    <span className="text-sm font-medium text-black">{entry.name}</span>
-                    <span className="text-sm text-gray-600">{entry.value}% ({entry.count})</span>
-                  </div>
-                ))}
               </div>
-            </CardContent>
-          </Card>
-          <Card className="bg-white border-2 border-gray-200 shadow-lg">
-            <CardHeader className="border-b border-gray-100">
-              <CardTitle className="text-xl flex items-center gap-2 text-black">
+              Membership Plan Distribution
+            </h2>
+          </div>
+          <div className="p-6">
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <Pie data={data?.planDistribution || []} cx="50%" cy="50%" innerRadius={80} outerRadius={120} paddingAngle={2} dataKey="value" stroke="none">
+                  {(data?.planDistribution || []).map((_, index) => (
+                    <Cell key={`cell-${index}`} fill={chartColors[index % chartColors.length]} />
+                  ))}
+                </Pie>
+                <Tooltip formatter={(value: any) => [`${value}%`, "Share"]} contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }} />
+              </PieChart>
+            </ResponsiveContainer>
+            <div className="flex flex-wrap justify-center gap-x-6 gap-y-3 mt-6">
+              {(data?.planDistribution || []).map((entry, index) => (
+                <div key={index} className="flex items-center gap-2">
+                  <div className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: chartColors[index % chartColors.length] }} />
+                  <span className="text-sm font-bold text-slate-800">{entry.name}</span>
+                  <span className="text-sm font-medium text-slate-500">{entry.value}% ({entry.count})</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200/60 overflow-hidden">
+          <div className="border-b border-slate-100 p-6">
+            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-3">
+              <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl">
                 <Calendar className="w-5 h-5" />
-                {viewMode === "monthly" ? "Monthly" : "Yearly"} Performance Data
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="overflow-y-auto max-h-80">
-                <table className="w-full">
-                  <thead className="sticky top-0 bg-gray-50 border-b-2 border-gray-200">
-                    <tr>
-                      <th className="text-left py-3 px-2 font-semibold text-black">Period</th>
-                      <th className="text-left py-3 px-2 font-semibold text-black">Revenue</th>
-                      <th className="text-left py-3 px-2 font-semibold text-black">Members</th>
-                      <th className="text-left py-3 px-2 font-semibold text-black">Avg/Member</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {currentData.map((item, index) => (
-                      <tr key={index} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-3 px-2 font-medium text-black">{"month" in item ? item.month : item.year}</td>
-                        <td className="py-3 px-2 text-black">₹{item.revenue.toLocaleString()}</td>
-                        <td className="py-3 px-2 text-black">{item.members}</td>
-                        <td className="py-3 px-2 text-black">₹{item.members ? Math.round(item.revenue / item.members).toLocaleString() : 0}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
               </div>
-            </CardContent>
-          </Card>
+              {viewMode === "monthly" ? "Monthly" : "Yearly"} Table Data
+            </h2>
+          </div>
+          <div className="p-0">
+            <div className="overflow-y-auto max-h-[350px]">
+              <table className="min-w-full divide-y divide-slate-100">
+                <thead className="bg-slate-50/80 sticky top-0 z-10 backdrop-blur-md">
+                  <tr>
+                    <th className="px-8 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200">Period</th>
+                    <th className="px-8 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200">Revenue</th>
+                    <th className="px-8 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200">Members</th>
+                    <th className="px-8 py-5 text-left text-xs font-bold text-slate-500 uppercase tracking-widest border-b border-slate-200">Avg/Member</th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-slate-100">
+                  {currentData.map((item, index) => (
+                    <tr key={index} className="hover:bg-slate-50/80 transition-colors group">
+                      <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-900 font-bold">{"month" in item ? item.month : item.year}</td>
+                      <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-600 font-medium">₹{item.revenue.toLocaleString()}</td>
+                      <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-600 font-medium">{item.members}</td>
+                      <td className="px-8 py-5 whitespace-nowrap text-sm text-slate-600 font-medium">₹{item.members ? Math.round(item.revenue / item.members).toLocaleString() : 0}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
