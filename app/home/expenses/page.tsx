@@ -107,24 +107,6 @@ export default function ExpensesPage() {
     }
   };
 
-  const createExpense = async () => {
-    const apiUrl =
-      typeof window === "undefined"
-        ? "/api/expenses"
-        : new URL("/api/expenses", window.location.origin).toString();
-    return fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: form.title,
-          amount,
-          category: form.category,
-          expenseDate: form.expenseDate,
-          notes: form.notes,
-        }),
-      });
-  };
-
   const topCategory = useMemo(() => data?.categorySummary?.[0], [data]);
 
   return (
