@@ -108,6 +108,7 @@ export default function ExpensesPage() {
   };
 
   const createExpense = async () => {
+    const amount = Number(form.amount);
     const apiUrl =
       typeof window === "undefined"
         ? "/api/expenses"
