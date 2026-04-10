@@ -12,16 +12,58 @@ const getDayRange = () => {
   return { start, end };
 };
 
+const authorizeDevice = (req: NextRequest) => {
+  const deviceSecret = process.env.FINGERPRINT_DEVICE_KEY;
+  const incomingDeviceSecret = req.headers.get("x-device-key");
+  if (deviceSecret && incomingDeviceSecret !== deviceSecret) {
+    return NextResponse.json({ error: "Unauthorized device" }, { status: 401 });
+  }
+  return null;
+};
+
+export const GET = async (req: NextRequest) => {
+  try {
+    await connectDb();
+    await syncMemberStatuses();
+
+    const authError = authorizeDevice(req);
+    if (authError) return authError;
+
+    const members = await Member.find({
+      fingerprintId: { $gte: 1, $lte: 255 },
+    })
+      .select("name phoneNumber membershipType status fingerprintId subscriptionEndDate")
+      .sort({ name: 1 })
+      .lean();
+
+    return NextResponse.json(
+      {
+        count: members.length,
+        members: members.map((member: any) => ({
+          id: String(member._id),
+          name: member.name,
+          phoneNumber: member.phoneNumber,
+          membershipType: member.membershipType,
+          status: member.status,
+          fingerprintId: member.fingerprintId,
+          subscriptionEndDate: member.subscriptionEndDate,
+        })),
+      },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Fingerprint members list error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+};
+
 export const POST = async (req: NextRequest) => {
   try {
     await connectDb();
     await syncMemberStatuses();
 
-    const deviceSecret = process.env.FINGERPRINT_DEVICE_KEY;
-    const incomingDeviceSecret = req.headers.get("x-device-key");
-    if (deviceSecret && incomingDeviceSecret !== deviceSecret) {
-      return NextResponse.json({ error: "Unauthorized device" }, { status: 401 });
-    }
+    const authError = authorizeDevice(req);
+    if (authError) return authError;
 
     const { fingerprintId } = await req.json();
     const normalizedFingerprintId = Number(fingerprintId);
@@ -76,6 +118,7 @@ export const POST = async (req: NextRequest) => {
           name: member.name,
           phoneNumber: member.phoneNumber,
           membershipType: member.membershipType,
+          status: member.status,
           fingerprintId: member.fingerprintId,
           subscriptionEndDate: member.subscriptionEndDate,
         },

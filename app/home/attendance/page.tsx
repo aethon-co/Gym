@@ -22,6 +22,12 @@ interface AttendanceRecord {
   date: string;
 }
 
+const getStatusTagClasses = (status?: Member["status"]) => {
+  if (status === "Expired") return "bg-red-100 text-red-700 border-red-200";
+  if (status === "Suspended") return "bg-amber-100 text-amber-700 border-amber-200";
+  return "bg-emerald-100 text-emerald-700 border-emerald-200";
+};
+
 const Attendance = () => {
   const [attendanceData, setAttendanceData] = useState<AttendanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -261,7 +267,13 @@ const Attendance = () => {
                       <td className={`px-8 py-5 whitespace-nowrap text-sm ${textClassSecondary}`}>
                         <div className="flex items-center">
                           <span className={`h-2 w-2 rounded-full mr-2 ${isExpired ? 'bg-red-500' : 'bg-emerald-500'}`}></span>
-                          {record.memberId?.status || "N/A"}
+                          <span
+                            className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-bold ${getStatusTagClasses(
+                              record.memberId?.status
+                            )}`}
+                          >
+                            {record.memberId?.status || "N/A"}
+                          </span>
                         </div>
                       </td>
                       <td className={`px-8 py-5 whitespace-nowrap text-sm ${textClassSecondary}`}>

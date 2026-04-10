@@ -55,6 +55,12 @@ const formatDate = (value?: string) => {
   return Number.isNaN(date.getTime()) ? "N/A" : format(date, "dd MMM");
 };
 
+const getCheckInStatusTagClasses = (status?: string) => {
+  if (status === "Expired") return "bg-red-100 text-red-700 border-red-200";
+  if (status === "Suspended") return "bg-amber-100 text-amber-700 border-amber-200";
+  return "bg-emerald-100 text-emerald-700 border-emerald-200";
+};
+
 export default function FrontDeskPage() {
   const [data, setData] = useState<FrontDeskPayload | null>(null);
   const [loading, setLoading] = useState(true);
@@ -141,7 +147,7 @@ export default function FrontDeskPage() {
         <Card className="rounded-3xl border-slate-200/60"><CardContent className="p-5"><p className="text-sm text-slate-500">Renewals Due</p><p className="text-3xl font-extrabold text-slate-900 mt-2">{summary.renewalsDue}</p></CardContent></Card>
         <Card className="rounded-3xl border-slate-200/60"><CardContent className="p-5"><p className="text-sm text-slate-500">Today&apos;s Check-ins</p><p className="text-3xl font-extrabold text-slate-900 mt-2">{summary.todayCheckIns}</p></CardContent></Card>
         <Card className="rounded-3xl border-slate-200/60"><CardContent className="p-5"><p className="text-sm text-slate-500">New Joiners</p><p className="text-3xl font-extrabold text-slate-900 mt-2">{summary.newJoinersThisWeek}</p></CardContent></Card>
-        <Card className="rounded-3xl border-slate-200/60 bg-orange-50 border-orange-100"><CardContent className="p-5"><p className="text-sm text-orange-700">Pending Dues</p><p className="text-3xl font-extrabold text-orange-950 mt-2">₹{summary.pendingDuesTotal.toLocaleString()}</p><p className="text-xs text-orange-700 mt-2">{summary.pendingDuesMembers} members</p></CardContent></Card>
+        <Card className="rounded-3xl border-orange-100 bg-orange-50"><CardContent className="p-5"><p className="text-sm text-orange-700">Pending Dues</p><p className="text-3xl font-extrabold text-orange-950 mt-2">₹{summary.pendingDuesTotal.toLocaleString()}</p><p className="text-xs text-orange-700 mt-2">{summary.pendingDuesMembers} members</p></CardContent></Card>
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-8">
@@ -199,9 +205,27 @@ export default function FrontDeskPage() {
             <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-5 text-sm text-slate-500">No check-ins recorded today.</div>
           ) : (
             (data?.todayCheckIns || []).map((record) => (
-              <div key={record._id} className="rounded-2xl border border-slate-200 p-4 flex items-center justify-between gap-4">
+              <div
+                key={record._id}
+                className={`rounded-2xl border p-4 flex items-center justify-between gap-4 ${
+                  record.member?.status === "Expired"
+                    ? "border-red-200 bg-red-50/40"
+                    : "border-slate-200"
+                }`}
+              >
                 <div>
-                  <p className="font-bold text-slate-900">{record.member?.name || "Unknown Member"}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-bold text-slate-900">{record.member?.name || "Unknown Member"}</p>
+                    {record.member?.status ? (
+                      <span
+                        className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-bold ${getCheckInStatusTagClasses(
+                          record.member.status
+                        )}`}
+                      >
+                        {record.member.status}
+                      </span>
+                    ) : null}
+                  </div>
                   <p className="text-sm text-slate-500 mt-1">{record.member?.membershipType || "N/A"} • Fingerprint {record.member?.fingerprintId ?? "N/A"}</p>
                 </div>
                 <div className="text-right text-sm text-slate-500">
