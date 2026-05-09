@@ -3,7 +3,6 @@ import { MEMBERSHIP_PRICES } from "@/lib/pricing";
 import Member from "@/models/member";
 import Payment from "@/models/payments";
 import { NextRequest, NextResponse } from "next/server";
-import jwt from "jsonwebtoken";
 
 const MEMBERSHIP_TYPES = ["Basic", "Premium", "Couple", "Student", "Custom"] as const;
 const VALID_DURATIONS = [1, 3, 6, 12] as const;
@@ -46,8 +45,6 @@ export async function POST(req: NextRequest) {
     const startDate = body.subscriptionStartDate ? new Date(body.subscriptionStartDate) : new Date();
     const paymentMethod = typeof body.paymentMethod === "string" ? body.paymentMethod : "Cash";
     const fingerprintId = parseFingerprintId(body.fingerprintId);
-    const fingerprintScanToken =
-      typeof body.fingerprintScanToken === "string" ? body.fingerprintScanToken : "";
 
     if (!name || !Number.isInteger(age) || age < 1 || age > 100 || !phoneNumber || !address) {
       return NextResponse.json({ error: "Invalid required fields" }, { status: 400 });
@@ -68,24 +65,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Fingerprint scan is required before registration" }, { status: 400 });
     }
 
-    const secret = process.env.JWT_SECRET;
-    if (!secret) {
-      return NextResponse.json({ error: "JWT secret not set" }, { status: 500 });
-    }
-    if (!fingerprintScanToken) {
-      return NextResponse.json({ error: "Missing fingerprint scan token" }, { status: 400 });
-    }
-    try {
-      const payload = jwt.verify(fingerprintScanToken, secret) as {
-        purpose?: string;
-        fingerprintId?: number;
-      };
-      if (payload.purpose !== "fingerprint_enroll" || payload.fingerprintId !== fingerprintId) {
-        return NextResponse.json({ error: "Invalid fingerprint scan token" }, { status: 400 });
-      }
-    } catch {
-      return NextResponse.json({ error: "Fingerprint scan token expired or invalid" }, { status: 400 });
-    }
+
 
     if (email && !isValidEmail(email)) {
       return NextResponse.json({ error: "Invalid email format" }, { status: 400 });
