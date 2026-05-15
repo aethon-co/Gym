@@ -57,6 +57,64 @@ export const GET = async (req: NextRequest) => {
   }
 };
 
+const processVerification = async (fingerprintId: any) => {
+  const normalizedFingerprintId = Number(fingerprintId);
+  if (!Number.isInteger(normalizedFingerprintId) || normalizedFingerprintId < 1 || normalizedFingerprintId > 255) {
+    return { error: "Invalid or missing fingerprint ID", status: 400 };
+  }
+
+  const member = await Member.findOne({ fingerprintId: normalizedFingerprintId });
+  if (!member) {
+    return { access: false, message: "Access denied. Fingerprint not registered", status: 404 };
+  }
+
+  member.updateStatus();
+  await member.save();
+
+  if (member.status !== "Active" && member.status !== "Expired") {
+    return {
+      access: false,
+      message: `Access denied. Member is ${member.status}`,
+      member: {
+        id: member._id,
+        name: member.name,
+        status: member.status,
+        membershipType: member.membershipType,
+        fp: member.fingerprintId,
+      },
+      status: 403,
+    };
+  }
+
+  const { start, end } = getDayRange();
+  const existingAttendance = await Attendance.findOne({
+    memberId: member._id,
+    date: { $gte: start, $lt: end },
+  }).lean();
+
+  if (!existingAttendance) {
+    await Attendance.create({
+      memberId: member._id,
+      date: new Date(),
+    });
+  }
+
+  return {
+    access: true,
+    message: "Access granted",
+    member: {
+      id: member._id,
+      name: member.name,
+      phoneNumber: member.phoneNumber,
+      membershipType: member.membershipType,
+      status: member.status,
+      fp: member.fingerprintId,
+      subscriptionEndDate: member.subscriptionEndDate,
+    },
+    status: 200,
+  };
+};
+
 export const POST = async (req: NextRequest) => {
   try {
     await connectDb();
@@ -66,66 +124,20 @@ export const POST = async (req: NextRequest) => {
     if (authError) return authError;
 
     const body = await req.json();
-    const fingerprintId = body.fp || body.fingerprintId;
-    const normalizedFingerprintId = Number(fingerprintId);
-    if (!Number.isInteger(normalizedFingerprintId) || normalizedFingerprintId < 1 || normalizedFingerprintId > 255) {
-      return NextResponse.json({ error: "Invalid or missing fingerprint ID" }, { status: 400 });
-    }
 
-    const member = await Member.findOne({ fingerprintId: normalizedFingerprintId });
-    if (!member) {
-      return NextResponse.json({ access: false, message: "Access denied. Fingerprint not registered" }, { status: 404 });
-    }
-
-    member.updateStatus();
-    await member.save();
-
-    if (member.status !== "Active" && member.status !== "Expired") {
-      return NextResponse.json(
-        {
-          access: false,
-          message: `Access denied. Member is ${member.status}`,
-          member: {
-            id: member._id,
-            name: member.name,
-            status: member.status,
-            membershipType: member.membershipType,
-            fp: member.fingerprintId,
-          },
-        },
-        { status: 403 }
+    if (Array.isArray(body)) {
+      const results = await Promise.all(
+        body.map(async (item) => {
+          const result = await processVerification(item.fp || item.fingerprintId);
+          return result;
+        })
       );
+      return NextResponse.json(results, { status: 200 });
     }
 
-    const { start, end } = getDayRange();
-    const existingAttendance = await Attendance.findOne({
-      memberId: member._id,
-      date: { $gte: start, $lt: end },
-    }).lean();
-
-    if (!existingAttendance) {
-      await Attendance.create({
-        memberId: member._id,
-        date: new Date(),
-      });
-    }
-
-    return NextResponse.json(
-      {
-        access: true,
-        message: "Access granted",
-        member: {
-          id: member._id,
-          name: member.name,
-          phoneNumber: member.phoneNumber,
-          membershipType: member.membershipType,
-          status: member.status,
-          fp: member.fingerprintId,
-          subscriptionEndDate: member.subscriptionEndDate,
-        },
-      },
-      { status: 200 }
-    );
+    const result = await processVerification(body.fp || body.fingerprintId);
+    const { status, ...data } = result;
+    return NextResponse.json(data, { status });
   } catch (error: any) {
     console.error("Fingerprint verification error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
