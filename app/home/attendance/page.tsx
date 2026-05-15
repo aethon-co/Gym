@@ -73,48 +73,30 @@ const Attendance = () => {
     setRefreshing(false);
   };
 
-  const exportToExcel = () => {
+  const exportToCSV = () => {
     if (!attendanceData.length) return;
 
-    const rows = attendanceData
-      .map((record) => {
-        const checkIn = new Date(record.date);
-        return `<tr>
-          <td>${record.memberId._id}</td>
-          <td>${record.memberId.name || "Unknown"}</td>
-          <td>${record.memberId.fingerprintId ?? ""}</td>
-          <td>${record.memberId.phoneNumber ?? ""}</td>
-          <td>${record.memberId.membershipType ?? ""}</td>
-          <td>${record.memberId.status ?? ""}</td>
-          <td>${checkIn.toLocaleDateString()}</td>
-          <td>${checkIn.toLocaleTimeString()}</td>
-        </tr>`;
-      })
-      .join("");
+    const headers = ["Member ID", "Name", "Fingerprint ID", "Phone", "Membership", "Status", "Date", "Check-in Time"];
+    const rows = attendanceData.map((record) => {
+      const checkIn = new Date(record.date);
+      return [
+        record.memberId._id,
+        record.memberId.name || "Unknown",
+        record.memberId.fingerprintId ?? "",
+        record.memberId.phoneNumber ?? "",
+        record.memberId.membershipType ?? "",
+        record.memberId.status ?? "",
+        checkIn.toLocaleDateString(),
+        checkIn.toLocaleTimeString(),
+      ].map(field => `"${String(field).replace(/"/g, '""')}"`).join(",");
+    });
 
-    const tableHtml = `
-      <table>
-        <thead>
-          <tr>
-            <th>Member ID</th>
-            <th>Name</th>
-            <th>Fingerprint ID</th>
-            <th>Phone</th>
-            <th>Membership</th>
-            <th>Status</th>
-            <th>Date</th>
-            <th>Check-in Time</th>
-          </tr>
-        </thead>
-        <tbody>${rows}</tbody>
-      </table>
-    `;
-
-    const blob = new Blob([tableHtml], { type: "application/vnd.ms-excel" });
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `attendance_${view}_${date}.xls`;
+    link.download = `attendance_${view}_${date}.csv`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -142,8 +124,8 @@ const Attendance = () => {
   return (
     <div className="min-h-screen p-6 sm:p-10 max-w-7xl mx-auto overflow-y-auto bg-slate-50">
       <div className="mb-10 flex flex-col items-center">
-        <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-orange-500 to-red-500 rounded-3xl shadow-lg shadow-orange-500/30 mb-5">
-          <Users className="w-8 h-8 text-white" />
+        <div className="w-32 h-32 mb-5">
+          <img src="/logo.png" alt="AMG Champions Gym Logo" className="w-full h-full object-contain" />
         </div>
         <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight text-center">Attendance History</h1>
         <p className="text-slate-500 font-medium mt-2">Track daily check-ins, member visits, and history in one place.</p>
@@ -198,7 +180,7 @@ const Attendance = () => {
                 <span>{refreshing ? "Refreshing" : "Refresh"}</span>
               </Button>
 
-              <Button onClick={exportToExcel} disabled={attendanceData.length === 0} className="h-14 rounded-2xl flex-1 sm:flex-none items-center gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-500/20 text-white transition-all px-5">
+              <Button onClick={exportToCSV} disabled={attendanceData.length === 0} className="h-14 rounded-2xl flex-1 sm:flex-none items-center gap-2 bg-emerald-600 hover:bg-emerald-700 shadow-md shadow-emerald-500/20 text-white transition-all px-5">
                 <Download className="h-4 w-4" />
                 <span>Export</span>
               </Button>

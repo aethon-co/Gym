@@ -45,8 +45,8 @@ export default function AdminSignIn() {
       <div className="w-full max-w-md px-6 py-10 sm:p-10 m-4 rounded-[2rem] bg-slate-900 border border-white/10 shadow-xl">
 
         <div className="text-center mb-10">
-          <div className="w-20 h-20 bg-red-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg shadow-red-500/20">
-            <Dumbbell className="w-10 h-10 text-white" strokeWidth={2.5} />
+          <div className="w-32 h-32 mx-auto mb-6">
+            <img src="/logo.png" alt="AMG Champions Gym Logo" className="w-full h-full object-contain" />
           </div>
           <h2 className="text-4xl font-extrabold text-white tracking-tight">
             Admin Portal

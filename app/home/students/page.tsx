@@ -28,6 +28,7 @@ interface StudentData {
   subscriptionStartDate?: string | number;
   paymentAmount?: number;
   daysRemaining?: number;
+  duration?: number;
 }
 
 const fetchMembers = async (): Promise<StudentData[]> => {
@@ -112,8 +113,8 @@ const Students = () => {
   return (
     <div className="min-h-screen p-6 sm:p-10 max-w-7xl mx-auto overflow-y-auto bg-slate-50">
       <div className="mb-10 flex flex-col items-center">
-        <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-orange-500 to-red-500 rounded-3xl shadow-lg shadow-orange-500/30 mb-5">
-          <User className="w-8 h-8 text-white" />
+        <div className="w-32 h-32 mb-5">
+          <img src="/logo.png" alt="AMG Champions Gym Logo" className="w-full h-full object-contain" />
         </div>
         <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight text-center">Members Management</h1>
         <p className="text-slate-500 font-medium mt-2">Track profiles, subscriptions, and member status in one place.</p>

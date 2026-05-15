@@ -32,7 +32,7 @@ const RegisterMember = () => {
     email: '',
     phone: '',
     address: '',
-    plan: '',
+    plan: 'Basic',
     duration: '1',
     paymentMethod: ''
   })
@@ -106,7 +106,7 @@ const RegisterMember = () => {
           email: '',
           phone: '',
           address: '',
-          plan: '',
+          plan: 'Basic',
           duration: '1',
           paymentMethod: ''
         })
@@ -130,7 +130,7 @@ const RegisterMember = () => {
       email: '',
       phone: '',
       address: '',
-      plan: '',
+      plan: 'Basic',
       duration: '1',
       paymentMethod: ''
     })
@@ -153,14 +153,14 @@ const RegisterMember = () => {
   const isCustomPlanSelected = formData.plan === 'Custom'
   const parsedFpId = fingerprintId !== "" ? parseInt(fingerprintId) : NaN
   const isFingerprintValid = !isNaN(parsedFpId) && parsedFpId >= 2 && parsedFpId <= 255
-  const isFormValid = formData.name && formData.age && formData.phone && formData.address && formData.plan && formData.paymentMethod && selectedDate && isFingerprintValid && (!isCustomPlanSelected || (formData.customAmount && !isNaN(parseFloat(formData.customAmount)) && parseFloat(formData.customAmount) > 0))
+  const isFormValid = formData.name && formData.age && formData.phone && formData.paymentMethod && selectedDate && isFingerprintValid
 
   return (
     <div className="min-h-screen p-6 sm:p-10 max-w-7xl mx-auto bg-slate-50">
       <Toaster position="top-right" />
       <div className="mb-10 flex flex-col items-center">
-        <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-orange-500 to-red-500 rounded-3xl shadow-lg shadow-orange-500/30 mb-5">
-          <UserPlus className="w-8 h-8 text-white" />
+        <div className="w-32 h-32 mb-5">
+          <img src="/logo.png" alt="AMG Champions Gym Logo" className="w-full h-full object-contain" />
         </div>
         <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight text-center">Member Registration</h1>
         <p className="text-slate-500 font-medium mt-2 text-center max-w-2xl">Complete the form below to register a new member. Fingerprint ID is assigned automatically by the scanner.</p>
@@ -215,21 +215,7 @@ const RegisterMember = () => {
                 <Textarea id="address" value={formData.address} onChange={(e) => handleInputChange('address', e.target.value)} placeholder="Full address" rows={3} className="px-4 py-4 rounded-2xl border-slate-200 bg-slate-50/50 focus:border-orange-500 focus:ring-orange-500/20 resize-none" />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div>
-                  <Label className="text-sm font-semibold text-slate-700 mb-2 block uppercase tracking-wider text-xs">Subscription Plan</Label>
-                  <Select value={formData.plan} onValueChange={(value) => handleInputChange('plan', value)}>
-                    <SelectTrigger className="px-4 py-6 rounded-2xl border-slate-200 bg-slate-50/50 focus:ring-orange-500/20 focus:border-orange-500 text-base shadow-sm"><SelectValue placeholder="Select a plan" /></SelectTrigger>
-                    <SelectContent className="rounded-2xl border-slate-200">
-                      <SelectItem value="Basic">Basic</SelectItem>
-                      <SelectItem value="Premium">Premium</SelectItem>
-                      <SelectItem value="Couple">Couple</SelectItem>
-                      <SelectItem value="Student">Student</SelectItem>
-                      <SelectItem value="Custom">Custom</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
+              <div className="grid grid-cols-1 gap-6">
                 <div>
                   <Label className="text-sm font-semibold text-slate-700 mb-2 block uppercase tracking-wider text-xs">Duration (Months)</Label>
                   <div className="relative">

@@ -157,8 +157,8 @@ const Analytics = () => {
 
       {/* Header */}
       <div className="mb-10 flex flex-col items-center">
-        <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-orange-500 to-red-500 rounded-3xl shadow-lg shadow-orange-500/30 mb-5">
-          <BarChart3 className="w-8 h-8 text-white" />
+        <div className="w-32 h-32 mb-5">
+          <img src="/logo.png" alt="AMG Champions Gym Logo" className="w-full h-full object-contain" />
         </div>
         <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight text-center">Analytics Dashboard</h1>
         <p className="text-slate-500 font-medium mt-2 text-center max-w-2xl">Live revenue, member growth, and plan distribution.</p>

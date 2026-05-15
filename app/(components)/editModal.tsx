@@ -37,6 +37,7 @@ interface EditModalProps {
     subscriptionEndDate: string | number;
     paymentAmount?: number;
     fingerprintId?: number;
+    duration?: number;
   };
   onSave: (student: any) => void;
 }
@@ -85,6 +86,7 @@ const EditModal = ({ student, onSave }: EditModalProps) => {
     },
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["student", student._id] });
+      queryClient.invalidateQueries({ queryKey: ["allstudents"] });
       onSave(data);
       showToast("Student updated successfully!", "success");
       setOpen(false);
@@ -101,28 +103,22 @@ const EditModal = ({ student, onSave }: EditModalProps) => {
     }));
   };
 
-  const handleMembershipTypeChange = (
-    value: typeof formData.membershipType
-  ) => {
-    const newPaymentAmount =
-      value === "Custom"
-        ? formData.paymentAmount || 0
-        : membershipPrices[value];
-
+  const handleStatusChange = (value: typeof student.status) => {
     setFormData((prev) => ({
       ...prev,
-      membershipType: value,
-      paymentAmount: newPaymentAmount,
+      status: value,
     }));
   };
 
-  const handlePaymentAmountChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const value = e.target.value === "" ? 0 : Number(e.target.value);
+  const handleDurationChange = (value: string) => {
+    const duration = Number(value);
+    // When changing duration, we usually want to start the new period from today if renewing
+    const newStartDate = new Date().toISOString().split("T")[0];
     setFormData((prev) => ({
       ...prev,
-      paymentAmount: value,
+      duration,
+      subscriptionStartDate: newStartDate,
+      status: "Active",
     }));
   };
 
@@ -151,8 +147,6 @@ const EditModal = ({ student, onSave }: EditModalProps) => {
       fingerprintId: fingerprintIdValue,
     });
   };
-
-  const isCustomMembership = formData.membershipType === "Custom";
 
   return (
     <>
@@ -216,29 +210,6 @@ const EditModal = ({ student, onSave }: EditModalProps) => {
               </div>
 
               <div className="grid gap-2">
-                <Label htmlFor="paymentAmount">
-                  Payment Amount{" "}
-                  {!isCustomMembership && `(${formData.membershipType})`}
-                </Label>
-                <Input
-                  id="paymentAmount"
-                  name="paymentAmount"
-                  type="number"
-                  value={formData.paymentAmount || ""}
-                  onChange={handlePaymentAmountChange}
-                  disabled={!isCustomMembership}
-                  className={
-                    !isCustomMembership ? "bg-gray-100 text-gray-600" : ""
-                  }
-                />
-                {!isCustomMembership && (
-                  <p className="text-xs text-gray-500">
-                    Fixed amount for {formData.membershipType} membership
-                  </p>
-                )}
-              </div>
-
-              <div className="grid gap-2">
                 <Label htmlFor="fingerprintId">Fingerprint ID</Label>
                 <Input
                   id="fingerprintId"
@@ -252,55 +223,39 @@ const EditModal = ({ student, onSave }: EditModalProps) => {
                 />
               </div>
 
-              <div className="flex gap-4">
-                <div className="flex-1 grid gap-2">
-                  <Label htmlFor="membershipType">Membership Type</Label>
-                  <Select
-                    value={formData.membershipType}
-                    onValueChange={handleMembershipTypeChange}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Basic">
-                        Basic - ₹{membershipPrices.Basic}
-                      </SelectItem>
-                      <SelectItem value="Premium">
-                        Premium - ₹{membershipPrices.Premium}
-                      </SelectItem>
-                      <SelectItem value="Couple">
-                        Couple - ₹{membershipPrices.Couple}
-                      </SelectItem>
-                      <SelectItem value="Student">
-                        Student - ₹{membershipPrices.Student}
-                      </SelectItem>
-                      <SelectItem value="Custom">Custom</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="grid gap-2">
+                <Label htmlFor="duration">Renewal Duration (Months)</Label>
+                <Select
+                  value={String(formData.duration || "1")}
+                  onValueChange={handleDurationChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select duration" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 Month</SelectItem>
+                    <SelectItem value="3">3 Months</SelectItem>
+                    <SelectItem value="6">6 Months</SelectItem>
+                    <SelectItem value="12">12 Months</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
 
-                <div className="flex-1 grid gap-2">
-                  <Label htmlFor="status">Status</Label>
-                  <Select
-                    value={formData.status}
-                    onValueChange={(value) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        status: value as typeof formData.status,
-                      }))
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Active">Active</SelectItem>
-                      <SelectItem value="Expired">Expired</SelectItem>
-                      <SelectItem value="Suspended">Suspended</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="grid gap-2">
+                <Label htmlFor="status">Status</Label>
+                <Select
+                  value={formData.status}
+                  onValueChange={handleStatusChange}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Active">Active</SelectItem>
+                    <SelectItem value="Expired">Expired</SelectItem>
+                    <SelectItem value="Suspended">Suspended</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid gap-2">

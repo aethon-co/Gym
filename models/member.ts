@@ -19,10 +19,11 @@ const memberSchema = new Schema(
       required: false,
     },
     phoneNumber: { type: String, required: true, unique: true, trim: true },
-    address: { type: String, required: true, trim: true },
+    address: { type: String, required: false, trim: true },
     membershipType: {
       type: String,
       enum: ["Basic", "Premium", "Couple", "Student", "Custom"],
+      default: "Basic",
       required: true,
     },
     duration: {
