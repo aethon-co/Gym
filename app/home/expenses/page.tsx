@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ResponsiveContainer, BarChart, Bar, CartesianGrid, XAxis, YAxis, Tooltip, PieChart, Pie, Cell } from "recharts";
-import { Wallet, Loader2 } from "lucide-react";
+import { Wallet, Loader2, Trash2 } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 
 type ExpenseItem = {
@@ -39,6 +39,7 @@ export default function ExpensesPage() {
   const [data, setData] = useState<ExpensePayload | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [form, setForm] = useState({
     title: "",
     amount: "",
@@ -107,6 +108,26 @@ export default function ExpensesPage() {
     }
   };
 
+  const deleteExpense = async (id: string, title: string) => {
+    if (!confirm(`Delete "${title}"?`)) return;
+    setDeletingId(id);
+    try {
+      const response = await fetch("/api/expenses", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id }),
+      });
+      const result = await response.json();
+      if (!response.ok) throw new Error(result.error || "Failed to delete expense");
+      toast.success("Expense deleted");
+      await fetchExpenses();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Failed to delete expense");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
   const topCategory = useMemo(() => data?.categorySummary?.[0], [data]);
 
   return (
@@ -166,7 +187,7 @@ export default function ExpensesPage() {
           <Card className="rounded-3xl border-slate-200/60"><CardContent className="p-5"><p className="text-sm text-slate-500">This Month</p><p className="text-3xl font-extrabold text-slate-900 mt-2">₹{(data?.summary.thisMonthExpenses || 0).toLocaleString()}</p></CardContent></Card>
           <Card className="rounded-3xl border-slate-200/60"><CardContent className="p-5"><p className="text-sm text-slate-500">Top Category</p><p className="text-3xl font-extrabold text-slate-900 mt-2">{topCategory?.category || "N/A"}</p><p className="text-sm text-slate-500 mt-2">₹{(topCategory?.amount || 0).toLocaleString()}</p></CardContent></Card>
 
-          <Card className="rounded-3xl border-slate-200/60 md:col-span-2">
+          <Card className="rounded-3xl border-slate-200/60 md:col-span-3">
             <CardHeader><CardTitle>Monthly Expense Trend</CardTitle></CardHeader>
             <CardContent className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -181,7 +202,7 @@ export default function ExpensesPage() {
             </CardContent>
           </Card>
 
-          <Card className="rounded-3xl border-slate-200/60">
+          {/* <Card className="rounded-3xl border-slate-200/60">
             <CardHeader><CardTitle>By Category</CardTitle></CardHeader>
             <CardContent className="h-[280px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -193,7 +214,7 @@ export default function ExpensesPage() {
                 </PieChart>
               </ResponsiveContainer>
             </CardContent>
-          </Card>
+          </Card> */}
         </div>
       </div>
 
@@ -212,7 +233,21 @@ export default function ExpensesPage() {
                   <p className="text-sm text-slate-500 mt-1">{expense.category} • {format(new Date(expense.expenseDate), "dd MMM yyyy")}</p>
                   {expense.notes ? <p className="text-sm text-slate-500 mt-2">{expense.notes}</p> : null}
                 </div>
-                <div className="text-right font-extrabold text-slate-900">₹{expense.amount.toLocaleString()}</div>
+                <div className="flex items-start gap-3 shrink-0">
+                  <span className="text-right font-extrabold text-slate-900">₹{expense.amount.toLocaleString()}</span>
+                  <button
+                    onClick={() => deleteExpense(expense._id, expense.title)}
+                    disabled={deletingId === expense._id}
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-colors disabled:opacity-50"
+                    title="Delete expense"
+                  >
+                    {deletingId === expense._id ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Trash2 className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
               </div>
             ))
           )}

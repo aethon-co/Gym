@@ -136,3 +136,26 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Failed to save expense" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    await connectDb();
+
+    const { id } = await req.json();
+
+    if (!id || typeof id !== "string") {
+      return NextResponse.json({ error: "Expense ID is required" }, { status: 400 });
+    }
+
+    const deleted = await Expense.findByIdAndDelete(id);
+
+    if (!deleted) {
+      return NextResponse.json({ error: "Expense not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Expense deleted successfully" });
+  } catch (error) {
+    console.error("Expenses DELETE error:", error);
+    return NextResponse.json({ error: "Failed to delete expense" }, { status: 500 });
+  }
+}
