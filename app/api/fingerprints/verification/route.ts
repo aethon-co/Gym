@@ -48,6 +48,35 @@ export const GET = async (req: NextRequest) => {
   }
 };
 
+const processSingleVerification = async (fingerprintId: any) => {
+  const normalizedFingerprintId = Number(fingerprintId);
+  if (!Number.isInteger(normalizedFingerprintId) || normalizedFingerprintId < 1 || normalizedFingerprintId > 255) {
+    return;
+  }
+
+  const member = await Member.findOne({ fingerprintId: normalizedFingerprintId });
+  if (!member) return;
+
+  member.updateStatus();
+  await member.save();
+
+  // Mark attendance for Active or Expired members
+  if (member.status === "Active" || member.status === "Expired") {
+    const { start, end } = getDayRange();
+    const existingAttendance = await Attendance.findOne({
+      memberId: member._id,
+      date: { $gte: start, $lt: end },
+    }).lean();
+
+    if (!existingAttendance) {
+      await Attendance.create({
+        memberId: member._id,
+        date: new Date(),
+      });
+    }
+  }
+};
+
 export const POST = async (req: NextRequest) => {
   try {
     await connectDb();
@@ -57,31 +86,13 @@ export const POST = async (req: NextRequest) => {
     if (authError) return authError;
 
     const body = await req.json();
-    const fingerprintId = body.fp || body.fingerprintId;
-    const normalizedFingerprintId = Number(fingerprintId);
 
-    // Process verification if a valid ID is provided
-    if (Number.isInteger(normalizedFingerprintId) && normalizedFingerprintId >= 1 && normalizedFingerprintId <= 255) {
-      const member = await Member.findOne({ fingerprintId: normalizedFingerprintId });
-      if (member) {
-        member.updateStatus();
-        await member.save();
-
-        if (member.status === "Active" || member.status === "Expired") {
-          const { start, end } = getDayRange();
-          const existingAttendance = await Attendance.findOne({
-            memberId: member._id,
-            date: { $gte: start, $lt: end },
-          }).lean();
-
-          if (!existingAttendance) {
-            await Attendance.create({
-              memberId: member._id,
-              date: new Date(),
-            });
-          }
-        }
-      }
+    if (Array.isArray(body)) {
+      await Promise.all(
+        body.map((item: any) => processSingleVerification(item.fp || item.fingerprintId))
+      );
+    } else {
+      await processSingleVerification(body.fp || body.fingerprintId);
     }
 
     // Always return the full list of fingerprints
