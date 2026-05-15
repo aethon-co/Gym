@@ -45,7 +45,7 @@ export const GET = async (req: NextRequest) => {
           phoneNumber: member.phoneNumber,
           membershipType: member.membershipType,
           status: member.status,
-          fingerprintId: member.fingerprintId,
+          fp: member.fingerprintId,
           subscriptionEndDate: member.subscriptionEndDate,
         })),
       },
@@ -65,7 +65,8 @@ export const POST = async (req: NextRequest) => {
     const authError = authorizeDevice(req);
     if (authError) return authError;
 
-    const { fingerprintId } = await req.json();
+    const body = await req.json();
+    const fingerprintId = body.fp || body.fingerprintId;
     const normalizedFingerprintId = Number(fingerprintId);
     if (!Number.isInteger(normalizedFingerprintId) || normalizedFingerprintId < 1 || normalizedFingerprintId > 255) {
       return NextResponse.json({ error: "Invalid or missing fingerprint ID" }, { status: 400 });
@@ -89,7 +90,7 @@ export const POST = async (req: NextRequest) => {
             name: member.name,
             status: member.status,
             membershipType: member.membershipType,
-            fingerprintId: member.fingerprintId,
+            fp: member.fingerprintId,
           },
         },
         { status: 403 }
@@ -119,7 +120,7 @@ export const POST = async (req: NextRequest) => {
           phoneNumber: member.phoneNumber,
           membershipType: member.membershipType,
           status: member.status,
-          fingerprintId: member.fingerprintId,
+          fp: member.fingerprintId,
           subscriptionEndDate: member.subscriptionEndDate,
         },
       },
