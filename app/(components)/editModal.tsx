@@ -31,7 +31,7 @@ interface EditModalProps {
     phoneNumber?: string;
     email?: string;
     address?: string;
-    membershipType: "Basic" | "Premium" | "Couple" | "Student" | "Custom";
+    membershipType: "Basic" | "Custom";
     status: "Active" | "Expired" | "Suspended";
     subscriptionStartDate?: string | number;
     subscriptionEndDate: string | number;
@@ -43,10 +43,7 @@ interface EditModalProps {
 }
 
 const membershipPrices = {
-  Basic: 1000,
-  Premium: 2000,
-  Couple: 3000,
-  Student: 500,
+  Basic: 400,
   Custom: 0,
 };
 

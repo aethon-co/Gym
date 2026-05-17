@@ -41,7 +41,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
         newEndDate.setMonth(newEndDate.getMonth() + renewalMonths);
 
         const targetMembershipType =
-          membershipType && ["Basic", "Premium", "Couple", "Student", "Custom"].includes(membershipType)
+          membershipType && ["Basic", "Custom"].includes(membershipType)
             ? membershipType
             : member.membershipType;
 
@@ -65,7 +65,6 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
               $set: {
                 subscriptionEndDate: newEndDate,
                 status: "Active",
-                membershipType: "Couple",
                 duration: renewalMonths,
                 paymentAmount: amount,
               },

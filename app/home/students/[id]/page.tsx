@@ -209,8 +209,6 @@ export default function StudentIdPage() {
   }, [student]);
 
   const getMembershipIcon = (type: string) => {
-    if (type === "Premium") return <Crown className="h-5 w-5 text-amber-500" />;
-    if (type === "Student") return <User className="h-5 w-5 text-emerald-500" />;
     return <User className="h-5 w-5 text-blue-500" />;
   };
 

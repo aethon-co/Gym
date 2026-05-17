@@ -4,7 +4,7 @@ import Member from "@/models/member";
 import Payment from "@/models/payments";
 import { NextRequest, NextResponse } from "next/server";
 
-const MEMBERSHIP_TYPES = ["Basic", "Premium", "Couple", "Student", "Custom"] as const;
+const MEMBERSHIP_TYPES = ["Basic", "Custom"] as const;
 const VALID_DURATIONS = [1, 3, 6, 12] as const;
 const PAYMENT_METHODS = ["Cash", "UPI", "Card", "BankTransfer"] as const;
 
@@ -108,10 +108,13 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const paymentAmount =
-      membershipType === "Custom"
-        ? customAmount
+    const baseMonthlyFee = membershipType === "Custom"
+        ? (customAmount || 0)
         : MEMBERSHIP_PRICES[membershipType as keyof typeof MEMBERSHIP_PRICES];
+    
+    // Calculate total: Registration fee (1000) + (Monthly fee * duration)
+    const registrationFee = 1000;
+    const paymentAmount = registrationFee + (baseMonthlyFee * duration);
     const endDate = new Date(startDate);
     endDate.setMonth(endDate.getMonth() + duration);
 

@@ -75,9 +75,6 @@ export default function RenewalModal({
       ...prev,
       membershipType: type as
         | "Basic"
-        | "Premium"
-        | "Couple"
-        | "Student"
         | "Custom",
       paymentAmount: type === "Custom"
         ? customBaseAmount * prev.renewalMonths
@@ -133,12 +130,10 @@ export default function RenewalModal({
 
   const getMembershipIcon = (type: string) => {
     switch (type) {
-      case "Premium":
-        return <Crown className="h-4 w-4 text-yellow-500" />;
-      case "Student":
-        return <User className="h-4 w-4 text-green-500" />;
-      default:
+      case "Basic":
         return <User className="h-4 w-4 text-blue-500" />;
+      default:
+        return <User className="h-4 w-4 text-gray-500" />;
     }
   };
 

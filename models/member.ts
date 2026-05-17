@@ -22,7 +22,7 @@ const memberSchema = new Schema(
     address: { type: String, required: false, trim: true },
     membershipType: {
       type: String,
-      enum: ["Basic", "Premium", "Couple", "Student", "Custom"],
+      enum: ["Basic", "Custom"],
       default: "Basic",
       required: true,
     },

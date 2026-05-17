@@ -22,7 +22,7 @@ interface StudentData {
   phoneNumber?: string;
   email?: string;
   fingerprintId?: number;
-  membershipType: "Basic" | "Premium" | "Student" | "Couple" | "Custom";
+  membershipType: "Basic" | "Custom";
   status: "Active" | "Expired" | "Suspended";
   subscriptionEndDate: string | number;
   subscriptionStartDate?: string | number;
@@ -160,9 +160,7 @@ const Students = () => {
               >
                 <option value="All">All Types</option>
                 <option value="Basic">Basic</option>
-                <option value="Premium">Premium</option>
-                <option value="Student">Student</option>
-                <option value="Couple">Couple</option>
+                <option value="Custom">Custom</option>
               </select>
             </div>
 
