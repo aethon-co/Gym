@@ -5,7 +5,7 @@ export interface StudentData {
   phoneNumber?: string;
   email?: string;
   address?: string;
-  membershipType: 'Basic' | 'Premium' | 'Couple' | 'Student' | 'Custom';
+  membershipType: 'Admission' | 'Renewal' | 'Custom';
   status: 'Active' | 'Expired' | 'Suspended';
   subscriptionEndDate: string | number;
   subscriptionStartDate?: string | number;

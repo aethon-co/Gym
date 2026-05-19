@@ -169,7 +169,7 @@ export default function StudentIdPage() {
         body: JSON.stringify({
           action: "unlink",
           memberId: id,
-          individualType: "Basic",
+          individualType: "Admission",
         }),
       });
       const data = await response.json();

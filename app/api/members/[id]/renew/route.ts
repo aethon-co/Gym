@@ -38,10 +38,10 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
             newEndDate = new Date(currentEndDate);
         }
         
-        newEndDate.setMonth(newEndDate.getMonth() + renewalMonths);
+        newEndDate.setDate(newEndDate.getDate() + renewalMonths * 30);
 
         const targetMembershipType =
-          membershipType && ["Basic", "Custom"].includes(membershipType)
+          membershipType && ["Admission", "Renewal", "Custom"].includes(membershipType)
             ? membershipType
             : member.membershipType;
 

@@ -4,15 +4,13 @@ import Member from "@/models/member";
 import Payment from "@/models/payments";
 import { NextRequest, NextResponse } from "next/server";
 
-const MEMBERSHIP_TYPES = ["Basic", "Premium", "Couple", "Student", "Custom"] as const;
+const MEMBERSHIP_TYPES = ["Admission", "Renewal", "Custom"] as const;
 const VALID_DURATIONS = [1, 3, 6, 12] as const;
 const VALID_STATUSES = ["Active", "Expired", "Suspended"] as const;
 
 const paymentAmounts = {
-  Basic: 1000,
-  Premium: 2000,
-  Couple: 3000,
-  Student: 500,
+  Admission: 1000,
+  Renewal: 400,
 };
 
 const normalizePhoneNumber = (phone: unknown): string => {
@@ -177,7 +175,7 @@ export const PATCH = async (
         const startDate = (updateData.subscriptionStartDate as Date) ?? currentMember.subscriptionStartDate;
         const duration = (updateData.duration as number) ?? currentMember.duration;
         const subscriptionEndDate = new Date(startDate);
-        subscriptionEndDate.setMonth(subscriptionEndDate.getMonth() + duration);
+        subscriptionEndDate.setDate(subscriptionEndDate.getDate() + duration * 30);
         updateData.subscriptionEndDate = subscriptionEndDate;
       }
     }

@@ -15,6 +15,8 @@ import {
   Settings,
   LogOut,
   Wallet,
+  PanelLeftClose,
+  PanelLeftOpen,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -30,6 +32,17 @@ type NavItemsType = {
 const Sidebar = () => {
   const router = useRouter();
   const [count, setCount] = useState<number | null>(null);
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem("sidebarCollapsed");
+    if (saved === "true") setCollapsed(true);
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("sidebarCollapsed", String(collapsed));
+  }, [collapsed]);
+
   useEffect(() => {
     const fetchMemberCount = async () => {
       try {
@@ -101,25 +114,33 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className="flex h-full w-72 flex-col border-r border-slate-200 bg-white text-slate-900">
-      <div className="flex h-20 items-center border-b border-slate-200 px-6">
-        <div className="flex items-center space-x-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-orange-500 to-red-600 shadow-lg">
-            <Dumbbell className="h-5 w-5 text-white" />
-          </div>
-          <div className="flex flex-col">
-            <h1 className="text-lg font-bold tracking-tight">Gym Admin Pro</h1>
-            <p className="text-xs text-slate-500">Operations Dashboard</p>
-          </div>
+    <div
+      className={cn(
+        "flex h-full flex-col border-r border-slate-200 bg-white text-slate-900 transition-all duration-300 ease-in-out overflow-hidden",
+        collapsed ? "w-[72px]" : "w-72"
+      )}
+    >
+      {/* Header */}
+      <div className="flex h-20 items-center border-b border-slate-200 px-3 justify-between">
+        <div className={cn("flex items-center", collapsed ? "justify-center w-full" : "space-x-3")}>
+          <img src="/logo.png" alt="Logo" className="h-10 w-10 flex-shrink-0 rounded-lg object-contain" />
+          {!collapsed && (
+            <div className="flex flex-col min-w-0">
+              <h1 className="text-lg font-bold tracking-tight whitespace-nowrap">Gym Admin Pro</h1>
+              <p className="text-xs text-slate-500 whitespace-nowrap">Operations Dashboard</p>
+            </div>
+          )}
         </div>
       </div>
 
-      <ScrollArea className="flex-1 px-3 py-4">
+      <ScrollArea className="flex-1 px-2 py-4">
         <div className="space-y-6">
           <div className="space-y-1">
-            <h2 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              Management
-            </h2>
+            {!collapsed && (
+              <h2 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Management
+              </h2>
+            )}
             <nav className="space-y-1">
               {mainNavItems.map((item) => {
                 const IconComponent = item.icon;
@@ -128,35 +149,41 @@ const Sidebar = () => {
                     key={item.href}
                     href={`/home/${item.href}`}
                     className="block"
+                    title={collapsed ? item.label : undefined}
                   >
                     <Button
                       variant="ghost"
                       className={cn(
-                        "w-full hover:cursor-pointer justify-start h-11 px-3 font-medium transition-all hover:bg-slate-100",
-                        "group relative overflow-hidden"
+                        "w-full hover:cursor-pointer h-11 font-medium transition-all hover:bg-slate-100",
+                        "group relative overflow-hidden",
+                        collapsed ? "justify-center px-0" : "justify-start px-3"
                       )}
                     >
-                      <div className="flex items-center space-x-3 relative z-10 w-full">
+                      <div className={cn("flex items-center relative z-10", collapsed ? "justify-center" : "space-x-3 w-full")}>
                         <IconComponent
                           className={cn(
-                            "h-4 w-4 transition-colors",
+                            "h-4 w-4 flex-shrink-0 transition-colors",
                             item.color
                           )}
                         />
-                        <span className="flex-1 text-left">{item.label}</span>
-                        {item.badge && (
-                          <Badge
-                            variant={
-                              item.badge === "Live" ? "default" : "secondary"
-                            }
-                            className={cn(
-                              "h-5 px-1.5 text-xs font-medium",
-                              item.badge === "Live" &&
-                                "bg-green-100 text-green-800 animate-pulse"
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
+                            {item.badge && (
+                              <Badge
+                                variant={
+                                  item.badge === "Live" ? "default" : "secondary"
+                                }
+                                className={cn(
+                                  "h-5 px-1.5 text-xs font-medium",
+                                  item.badge === "Live" &&
+                                    "bg-green-100 text-green-800 animate-pulse"
+                                )}
+                              >
+                                {item.badge}
+                              </Badge>
                             )}
-                          >
-                            {item.badge}
-                          </Badge>
+                          </>
                         )}
                       </div>
                       <div className="absolute inset-0 bg-gradient-to-r from-orange-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
@@ -167,12 +194,14 @@ const Sidebar = () => {
             </nav>
           </div>
 
-          <Separator className="mx-3 bg-slate-200" />
+          <Separator className="mx-1 bg-slate-200" />
 
           <div className="space-y-1">
-            <h2 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-              More
-            </h2>
+            {!collapsed && (
+              <h2 className="px-3 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                More
+              </h2>
+            )}
             <nav className="space-y-1">
               {secondaryNavItems.map((item) => {
                 const IconComponent = item.icon;
@@ -181,21 +210,29 @@ const Sidebar = () => {
                     key={item.href}
                     href={`/home/${item.href}`}
                     className="block"
+                    title={collapsed ? item.label : undefined}
                   >
                     <Button
                       variant="ghost"
-                      className="w-full hover:cursor-pointer justify-start h-10 px-3 font-medium hover:bg-slate-100 transition-all group"
+                      className={cn(
+                        "w-full hover:cursor-pointer h-10 font-medium hover:bg-slate-100 transition-all group",
+                        collapsed ? "justify-center px-0" : "justify-start px-3"
+                      )}
                     >
-                      <div className="flex items-center space-x-3 w-full">
-                        <IconComponent className={cn("h-4 w-4", item.color)} />
-                        <span className="flex-1 text-left">{item.label}</span>
-                        {item?.badge && (
-                          <Badge
-                            variant="destructive"
-                            className="h-4 w-4 p-0 flex items-center justify-center text-xs"
-                          >
-                            {item.badge}
-                          </Badge>
+                      <div className={cn("flex items-center", collapsed ? "justify-center" : "space-x-3 w-full")}>
+                        <IconComponent className={cn("h-4 w-4 flex-shrink-0", item.color)} />
+                        {!collapsed && (
+                          <>
+                            <span className="flex-1 text-left whitespace-nowrap">{item.label}</span>
+                            {item?.badge && (
+                              <Badge
+                                variant="destructive"
+                                className="h-4 w-4 p-0 flex items-center justify-center text-xs"
+                              >
+                                {item.badge}
+                              </Badge>
+                            )}
+                          </>
                         )}
                       </div>
                     </Button>
@@ -207,14 +244,37 @@ const Sidebar = () => {
         </div>
       </ScrollArea>
 
-      <div className="border-t border-slate-200 p-3">
+      {/* Footer */}
+      <div className="border-t border-slate-200 p-2 space-y-1">
+        <Button
+          variant="ghost"
+          onClick={() => setCollapsed(!collapsed)}
+          className={cn(
+            "w-full h-10 font-medium hover:bg-slate-100 transition-all text-slate-500 hover:text-slate-700",
+            collapsed ? "justify-center px-0" : "justify-start px-3"
+          )}
+          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        >
+          {collapsed ? (
+            <PanelLeftOpen className="h-4 w-4 flex-shrink-0" />
+          ) : (
+            <>
+              <PanelLeftClose className="h-4 w-4 mr-3 flex-shrink-0" />
+              <span className="whitespace-nowrap">Collapse</span>
+            </>
+          )}
+        </Button>
         <Button
           variant="ghost"
           onClick={handleLogout}
-          className="w-full justify-start h-10 px-3 font-medium hover:bg-red-50 hover:text-red-700 transition-all"
+          className={cn(
+            "w-full h-10 font-medium hover:bg-red-50 hover:text-red-700 transition-all",
+            collapsed ? "justify-center px-0" : "justify-start px-3"
+          )}
+          title={collapsed ? "Logout" : undefined}
         >
-          <LogOut className="h-4 w-4 mr-3" />
-          Logout
+          <LogOut className="h-4 w-4 flex-shrink-0" />
+          {!collapsed && <span className="ml-3 whitespace-nowrap">Logout</span>}
         </Button>
       </div>
     </div>

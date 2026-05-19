@@ -7,7 +7,7 @@ import mongoose from "mongoose";
 export async function POST(req: NextRequest) {
   try {
     await connectDb();
-    const { action, memberId, partnerMemberId, individualType = "Basic" } = await req.json();
+    const { action, memberId, partnerMemberId, individualType = "Admission" } = await req.json();
 
     if (!action || !memberId) {
       return NextResponse.json({ error: "action and memberId are required" }, { status: 400 });
@@ -61,7 +61,7 @@ export async function POST(req: NextRequest) {
     }
 
     if (action === "unlink") {
-      const allowedIndividualTypes = ["Basic", "Premium", "Student", "Custom"];
+      const allowedIndividualTypes = ["Admission", "Renewal", "Custom"];
       if (!allowedIndividualTypes.includes(individualType)) {
         return NextResponse.json({ error: "Invalid individual membership type" }, { status: 400 });
       }

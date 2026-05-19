@@ -25,7 +25,8 @@ const StudentCard = ({
 
   const getMembershipColor = (type: string) => {
     switch (type) {
-      case 'Basic': return 'text-blue-700 bg-blue-50 ring-blue-500/30'
+      case 'Admission': return 'text-orange-700 bg-orange-50 ring-orange-500/30'
+      case 'Renewal': return 'text-blue-700 bg-blue-50 ring-blue-500/30'
       default: return 'text-gray-700 bg-gray-50 ring-gray-500/30'
     }
   }

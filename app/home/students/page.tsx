@@ -22,7 +22,7 @@ interface StudentData {
   phoneNumber?: string;
   email?: string;
   fingerprintId?: number;
-  membershipType: "Basic" | "Custom";
+  membershipType: "Admission" | "Renewal" | "Custom";
   status: "Active" | "Expired" | "Suspended";
   subscriptionEndDate: string | number;
   subscriptionStartDate?: string | number;
@@ -159,7 +159,8 @@ const Students = () => {
                 className="px-4 py-3 bg-transparent text-sm font-semibold text-slate-700 outline-none focus:ring-0 border-none cursor-pointer min-w-[120px]"
               >
                 <option value="All">All Types</option>
-                <option value="Basic">Basic</option>
+                <option value="Admission">Admission</option>
+                <option value="Renewal">Renewal</option>
                 <option value="Custom">Custom</option>
               </select>
             </div>

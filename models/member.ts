@@ -22,8 +22,8 @@ const memberSchema = new Schema(
     address: { type: String, required: false, trim: true },
     membershipType: {
       type: String,
-      enum: ["Basic", "Custom"],
-      default: "Basic",
+      enum: ["Admission", "Renewal", "Custom"],
+      default: "Admission",
       required: true,
     },
     duration: {
@@ -80,7 +80,7 @@ memberSchema.pre("save", function (next) {
     this.isNew
   ) {
     const endDate = new Date(this.subscriptionStartDate);
-    endDate.setMonth(endDate.getMonth() + this.duration);
+    endDate.setDate(endDate.getDate() + this.duration * 30);
     this.subscriptionEndDate = endDate;
   }
   next();

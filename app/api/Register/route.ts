@@ -4,7 +4,7 @@ import Member from "@/models/member";
 import Payment from "@/models/payments";
 import { NextRequest, NextResponse } from "next/server";
 
-const MEMBERSHIP_TYPES = ["Basic", "Custom"] as const;
+const MEMBERSHIP_TYPES = ["Admission", "Renewal", "Custom"] as const;
 const VALID_DURATIONS = [1, 3, 6, 12] as const;
 const PAYMENT_METHODS = ["Cash", "UPI", "Card", "BankTransfer"] as const;
 
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
     const registrationFee = 1000;
     const paymentAmount = registrationFee + (baseMonthlyFee * duration);
     const endDate = new Date(startDate);
-    endDate.setMonth(endDate.getMonth() + duration);
+    endDate.setDate(endDate.getDate() + duration * 30);
 
     const member = new Member({
       name,
@@ -328,7 +328,7 @@ export async function PUT(req: NextRequest) {
         const baseStartDate = (updateData.subscriptionStartDate as Date) ?? member.subscriptionStartDate;
         const baseDuration = (updateData.duration as number) ?? member.duration;
         const newEndDate = new Date(baseStartDate);
-        newEndDate.setMonth(newEndDate.getMonth() + baseDuration);
+        newEndDate.setDate(newEndDate.getDate() + baseDuration * 30);
         updateData.subscriptionEndDate = newEndDate;
       }
     }

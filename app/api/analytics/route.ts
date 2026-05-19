@@ -71,10 +71,8 @@ export async function GET() {
     }
 
     const membershipCounts = {
-      Basic: 0,
-      Premium: 0,
-      Couple: 0,
-      Student: 0,
+      Admission: 0,
+      Renewal: 0,
       Custom: 0,
     };
     for (const member of members as any[]) {

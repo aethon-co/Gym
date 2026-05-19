@@ -66,7 +66,7 @@ export default function RenewalModal({
     renewalMonths: 1,
     paymentAmount: student.membershipType === "Custom"
       ? customBaseAmount
-      : membershipPrices[student.membershipType] || membershipPrices.Basic,
+      : membershipPrices[student.membershipType] || membershipPrices.Renewal,
     paymentMethod: "Cash",
   });
 
@@ -74,7 +74,8 @@ export default function RenewalModal({
     setFormData((prev) => ({
       ...prev,
       membershipType: type as
-        | "Basic"
+        | "Admission"
+        | "Renewal"
         | "Custom",
       paymentAmount: type === "Custom"
         ? customBaseAmount * prev.renewalMonths
@@ -119,7 +120,7 @@ export default function RenewalModal({
     }
 
     const newEndDate = new Date(startDate);
-    newEndDate.setMonth(newEndDate.getMonth() + formData.renewalMonths);
+    newEndDate.setDate(newEndDate.getDate() + formData.renewalMonths * 30);
 
     return newEndDate.toLocaleDateString("en-GB", {
       day: "2-digit",
@@ -130,7 +131,9 @@ export default function RenewalModal({
 
   const getMembershipIcon = (type: string) => {
     switch (type) {
-      case "Basic":
+      case "Admission":
+        return <Crown className="h-4 w-4 text-orange-500" />;
+      case "Renewal":
         return <User className="h-4 w-4 text-blue-500" />;
       default:
         return <User className="h-4 w-4 text-gray-500" />;

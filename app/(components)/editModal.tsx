@@ -31,7 +31,7 @@ interface EditModalProps {
     phoneNumber?: string;
     email?: string;
     address?: string;
-    membershipType: "Basic" | "Custom";
+    membershipType: "Admission" | "Renewal" | "Custom";
     status: "Active" | "Expired" | "Suspended";
     subscriptionStartDate?: string | number;
     subscriptionEndDate: string | number;
@@ -43,7 +43,8 @@ interface EditModalProps {
 }
 
 const membershipPrices = {
-  Basic: 400,
+  Admission: 1000,
+  Renewal: 400,
   Custom: 0,
 };
 
@@ -218,6 +219,24 @@ const EditModal = ({ student, onSave }: EditModalProps) => {
                   onChange={handleChange}
                   placeholder="Sensor slot ID (1-255)"
                 />
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="membershipType">Membership Type</Label>
+                <Select
+                  value={formData.membershipType}
+                  onValueChange={(value: "Admission" | "Renewal" | "Custom") =>
+                    setFormData((prev) => ({ ...prev, membershipType: value }))
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select membership type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Admission">Admission — ₹1,000</SelectItem>
+                    <SelectItem value="Renewal">Renewal — ₹400</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid gap-2">

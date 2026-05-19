@@ -1,5 +1,6 @@
 export const MEMBERSHIP_PRICES = {
-  Basic: 400,
+  Admission: 1000,
+  Renewal: 400,
 } as const;
 
 export type MembershipType = keyof typeof MEMBERSHIP_PRICES | "Custom";

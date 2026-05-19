@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
-import { UserPlus, Phone, CalendarDays, User, CreditCard, Smartphone, Wallet, Mail, Clock, Fingerprint } from "lucide-react"
+import { UserPlus, Phone, CalendarDays, User, CreditCard, Smartphone, Wallet, Mail, Clock, Fingerprint, Crown } from "lucide-react"
 import { useState } from "react"
 import toast, { Toaster } from 'react-hot-toast'
 
@@ -32,7 +32,7 @@ const RegisterMember = () => {
     email: '',
     phone: '',
     address: '',
-    plan: 'Basic',
+    plan: 'Admission',
     duration: '1',
     paymentMethod: ''
   })
@@ -106,7 +106,7 @@ const RegisterMember = () => {
           email: '',
           phone: '',
           address: '',
-          plan: 'Basic',
+          plan: 'Admission',
           duration: '1',
           paymentMethod: ''
         })
@@ -130,7 +130,7 @@ const RegisterMember = () => {
       email: '',
       phone: '',
       address: '',
-      plan: 'Basic',
+      plan: 'Admission',
       duration: '1',
       paymentMethod: ''
     })
@@ -215,7 +215,7 @@ const RegisterMember = () => {
                 <Textarea id="address" value={formData.address} onChange={(e) => handleInputChange('address', e.target.value)} placeholder="Full address" rows={3} className="px-4 py-4 rounded-2xl border-slate-200 bg-slate-50/50 focus:border-orange-500 focus:ring-orange-500/20 resize-none" />
               </div>
 
-              <div className="grid grid-cols-1 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
                   <Label className="text-sm font-semibold text-slate-700 mb-2 block uppercase tracking-wider text-xs">Duration (Months)</Label>
                   <div className="relative">
@@ -229,6 +229,22 @@ const RegisterMember = () => {
                         <SelectItem value="3">3 Months</SelectItem>
                         <SelectItem value="6">6 Months</SelectItem>
                         <SelectItem value="12">12 Months</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div>
+                  <Label className="text-sm font-semibold text-slate-700 mb-2 block uppercase tracking-wider text-xs">Membership Type</Label>
+                  <div className="relative">
+                    <Crown className="absolute left-4 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5 z-10" />
+                    <Select value={formData.plan} onValueChange={(value) => handleInputChange('plan', value)}>
+                      <SelectTrigger className="pl-12 pr-4 py-6 rounded-2xl border-slate-200 bg-slate-50/50 focus:ring-orange-500/20 focus:border-orange-500 text-base shadow-sm">
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-2xl border-slate-200">
+                        <SelectItem value="Admission">Admission — ₹1,000</SelectItem>
+                        <SelectItem value="Renewal">Renewal — ₹400</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>

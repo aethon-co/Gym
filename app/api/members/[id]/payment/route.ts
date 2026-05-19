@@ -17,7 +17,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
     member.paymentAmount = amount;
 
     const newEndDate = new Date(member.subscriptionEndDate);
-    newEndDate.setMonth(newEndDate.getMonth() + 1);
+    newEndDate.setDate(newEndDate.getDate() + 30);
     member.subscriptionEndDate = newEndDate;
 
     member.status = "Active";
