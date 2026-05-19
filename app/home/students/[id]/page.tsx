@@ -108,13 +108,7 @@ export default function StudentIdPage() {
     fetchStudentData();
   }, [id]);
 
-  useEffect(() => {
-    if (!student || student.membershipType !== "Couple" || student.coupleGroupId) return;
-    const timer = setTimeout(() => {
-      fetchPartnerCandidates(partnerQuery);
-    }, 200);
-    return () => clearTimeout(timer);
-  }, [partnerQuery, student?.membershipType, student?.coupleGroupId]);
+
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this member? This action cannot be undone.")) return;
@@ -241,66 +235,7 @@ export default function StudentIdPage() {
           </div>
         </div>
 
-        {student.membershipType === "Couple" && (
-          <div className="bg-white shadow-xl rounded-2xl border border-slate-200 p-6">
-            <h2 className="text-lg font-semibold mb-4">Couple Membership</h2>
-            {student.coupleGroupId ? (
-              <div className="space-y-3">
-                <p className="text-sm text-slate-600">
-                  Linked Group: <span className="font-medium">{student.coupleGroupId}</span>
-                </p>
-                <p className="text-sm text-slate-600">
-                  Partner: <span className="font-medium">{student.couplePartner?.name || "Linked"}</span>
-                </p>
-                <Button onClick={convertToIndividual} variant="outline" disabled={coupleLoading} className="flex items-center gap-2">
-                  <Unlink2 className="h-4 w-4" />
-                  {coupleLoading ? "Converting..." : "Convert to Individual"}
-                </Button>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <p className="text-sm text-slate-600">Search and select an unlinked Couple member.</p>
-                <div className="relative max-w-md">
-                  <Search className="h-4 w-4 text-slate-400 absolute left-3 top-3" />
-                  <input
-                    value={partnerQuery}
-                    onFocus={() => setShowCandidateDropdown(true)}
-                    onChange={(e) => {
-                      setPartnerQuery(e.target.value);
-                      setPartnerMemberId("");
-                      setShowCandidateDropdown(true);
-                    }}
-                    placeholder="Search partner by name"
-                    className="w-full border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-sm bg-white"
-                  />
-                  {showCandidateDropdown && partnerCandidates.length > 0 && (
-                    <div className="absolute z-30 w-full mt-1 rounded-lg border bg-white shadow-lg max-h-56 overflow-auto">
-                      {partnerCandidates.map((candidate) => (
-                        <button
-                          key={candidate._id}
-                          type="button"
-                          onClick={() => {
-                            setPartnerMemberId(candidate._id);
-                            setPartnerQuery(`${candidate.name} (${candidate.phoneNumber || "No phone"})`);
-                            setShowCandidateDropdown(false);
-                          }}
-                          className="w-full text-left px-3 py-2 border-b last:border-b-0 hover:bg-slate-50"
-                        >
-                          <p className="text-sm font-medium text-slate-900">{candidate.name}</p>
-                          <p className="text-xs text-slate-500">{candidate.phoneNumber || "No phone"} | {candidate.status || "Unknown"}</p>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-                <Button onClick={linkAsCouple} disabled={coupleLoading || !partnerMemberId} className="flex items-center gap-2">
-                  <Link2 className="h-4 w-4" />
-                  {coupleLoading ? "Linking..." : "Link as Couple"}
-                </Button>
-              </div>
-            )}
-          </div>
-        )}
+
 
         <div className="bg-white shadow-sm shadow-slate-200/50 rounded-3xl border border-slate-200/60 overflow-hidden shrink-0">
           <div className="h-32 bg-gradient-to-r from-orange-500 to-red-600 relative">
